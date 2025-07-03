@@ -1,6 +1,7 @@
 // src/screens/PatientInfoScreen.js
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { usePatientContext } from '../context/PatientContext';
 import { useNavigation } from '@react-navigation/native';
 
@@ -29,81 +30,83 @@ const PatientInfoScreen = () => {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20} // ปรับ offset ตาม header หรือ status bar
-    >
-      <ScrollView contentContainerStyle={styles.container}>
-        <View style={styles.header}>
-          <View style={styles.logo}>
-            <Text style={styles.logoIcon}>❤️</Text>
-          </View>
-          <Text style={styles.title}>แอปพลิเคชันแนวปฏิบัติการพยาบาล</Text>
-          <Text style={styles.subtitle}>โรงพยาบาลร้อยเอ็ด • คัดกรองและดูแลผู้ป่วยวิกฤต</Text>
-        </View>
-
-        <View style={styles.card}>
-          <View style={styles.cardHeader}>
-            <Text style={styles.cardHeaderText}>👤 ข้อมูลผู้ป่วย</Text>
-          </View>
-          <View style={styles.cardBody}>
-            <Text style={styles.label}>เลือกวอร์ด/พื้นที่รักษา</Text>
-            <View style={styles.selectContainer}>
-              {wards.map((ward, index) => (
-                <TouchableOpacity
-                  key={index}
-                  style={[
-                    styles.option,
-                    formData.ward === ward.value && styles.selectedOption
-                  ]}
-                  onPress={() => setFormData({ ...formData, ward: ward.value })}
-                >
-                  <Text style={formData.ward === ward.value ? styles.selectedOptionText : styles.optionText}>
-                    {ward.label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#eafaf7' }}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20} // ปรับ offset ตาม header หรือ status bar
+      >
+        <ScrollView contentContainerStyle={styles.container}>
+          <View style={styles.header}>
+            <View style={styles.logo}>
+              <Text style={styles.logoIcon}>❤️</Text>
             </View>
-
-            <View style={styles.row}>
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>ชื่อ-สกุล</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="ชื่อ-สกุลผู้ป่วย"
-                  value={formData.name}
-                  onChangeText={(text) => setFormData({ ...formData, name: text })}
-                  placeholderTextColor="#b2b2b2"
-                />
-              </View>
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>หมายเลข HN</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="หมายเลข HN"
-                  value={formData.hn}
-                  onChangeText={(text) => setFormData({ ...formData, hn: text })}
-                  keyboardType="numeric"
-                  placeholderTextColor="#b2b2b2"
-                />
-              </View>
-            </View>
-
-            <TouchableOpacity 
-              style={[
-                styles.nextButton, 
-                (!formData.ward || !formData.name || !formData.hn) && styles.nextButtonDisabled
-              ]} 
-              onPress={handleNext}
-              disabled={!formData.ward || !formData.name || !formData.hn}
-            >
-              <Text style={styles.nextButtonText}>ต่อไป →</Text>
-            </TouchableOpacity>
+            <Text style={styles.title}>แอปพลิเคชันแนวปฏิบัติการพยาบาล</Text>
+            <Text style={styles.subtitle}>โรงพยาบาลร้อยเอ็ด • คัดกรองและดูแลผู้ป่วยวิกฤต</Text>
           </View>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+
+          <View style={styles.card}>
+            <View style={styles.cardHeader}>
+              <Text style={styles.cardHeaderText}>👤 ข้อมูลผู้ป่วย</Text>
+            </View>
+            <View style={styles.cardBody}>
+              <Text style={styles.label}>เลือกวอร์ด/พื้นที่รักษา</Text>
+              <View style={styles.selectContainer}>
+                {wards.map((ward, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={[
+                      styles.option,
+                      formData.ward === ward.value && styles.selectedOption
+                    ]}
+                    onPress={() => setFormData({ ...formData, ward: ward.value })}
+                  >
+                    <Text style={formData.ward === ward.value ? styles.selectedOptionText : styles.optionText}>
+                      {ward.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              <View style={styles.row}>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>ชื่อ-สกุล</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="ชื่อ-สกุลผู้ป่วย"
+                    value={formData.name}
+                    onChangeText={(text) => setFormData({ ...formData, name: text })}
+                    placeholderTextColor="#b2b2b2"
+                  />
+                </View>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>หมายเลข HN</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="หมายเลข HN"
+                    value={formData.hn}
+                    onChangeText={(text) => setFormData({ ...formData, hn: text })}
+                    keyboardType="numeric"
+                    placeholderTextColor="#b2b2b2"
+                  />
+                </View>
+              </View>
+
+              <TouchableOpacity 
+                style={[
+                  styles.nextButton, 
+                  (!formData.ward || !formData.name || !formData.hn) && styles.nextButtonDisabled
+                ]} 
+                onPress={handleNext}
+                disabled={!formData.ward || !formData.name || !formData.hn}
+              >
+                <Text style={styles.nextButtonText}>ต่อไป →</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
