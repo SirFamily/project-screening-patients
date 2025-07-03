@@ -5,7 +5,9 @@ const PatientContext = createContext();
 
 export const PatientProvider = ({ children }) => {
   const [patientData, setPatientData] = useState({
-    name: "",
+    firstName: "",
+    lastName: "",
+    name: "", // เก็บไว้เผื่อใช้ย้อนหลัง
     hn: "",
     ward: "",
     assessmentType: "",
@@ -23,6 +25,8 @@ export const PatientProvider = ({ children }) => {
 
   const resetPatientData = () => {
     setPatientData({
+      firstName: "",
+      lastName: "",
       name: "",
       hn: "",
       ward: "",

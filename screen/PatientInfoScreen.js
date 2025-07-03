@@ -10,7 +10,8 @@ const PatientInfoScreen = () => {
   const navigation = useNavigation();
   const [formData, setFormData] = useState({
     ward: '',
-    name: '',
+    firstName: '',
+    lastName: '',
     hn: ''
   });
 
@@ -23,7 +24,9 @@ const PatientInfoScreen = () => {
   const handleNext = () => {
     updatePatientData({
       ward: formData.ward,
-      name: formData.name,
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      name: `${formData.firstName} ${formData.lastName}`,
       hn: formData.hn
     });
     navigation.navigate('AssessmentSelection');
@@ -70,35 +73,46 @@ const PatientInfoScreen = () => {
 
               <View style={styles.row}>
                 <View style={styles.inputGroup}>
-                  <Text style={styles.label}>ชื่อ-สกุล</Text>
+                  <Text style={styles.label}>ชื่อ</Text>
                   <TextInput
                     style={styles.input}
-                    placeholder="ชื่อ-สกุลผู้ป่วย"
-                    value={formData.name}
-                    onChangeText={(text) => setFormData({ ...formData, name: text })}
+                    placeholder="ชื่อ"
+                    value={formData.firstName}
+                    onChangeText={(text) => setFormData({ ...formData, firstName: text })}
                     placeholderTextColor="#b2b2b2"
                   />
                 </View>
                 <View style={styles.inputGroup}>
-                  <Text style={styles.label}>หมายเลข HN</Text>
+                  <Text style={styles.label}>นามสกุล</Text>
                   <TextInput
                     style={styles.input}
-                    placeholder="หมายเลข HN"
-                    value={formData.hn}
-                    onChangeText={(text) => setFormData({ ...formData, hn: text })}
-                    keyboardType="numeric"
+                    placeholder="นามสกุล"
+                    value={formData.lastName}
+                    onChangeText={(text) => setFormData({ ...formData, lastName: text })}
                     placeholderTextColor="#b2b2b2"
                   />
                 </View>
               </View>
 
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>หมายเลข HN</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="หมายเลข HN"
+                  value={formData.hn}
+                  onChangeText={(text) => setFormData({ ...formData, hn: text })}
+                  keyboardType="numeric"
+                  placeholderTextColor="#b2b2b2"
+                />
+              </View>
+
               <TouchableOpacity 
                 style={[
                   styles.nextButton, 
-                  (!formData.ward || !formData.name || !formData.hn) && styles.nextButtonDisabled
+                  (!formData.ward || !formData.firstName || !formData.lastName || !formData.hn) && styles.nextButtonDisabled
                 ]} 
                 onPress={handleNext}
-                disabled={!formData.ward || !formData.name || !formData.hn}
+                disabled={!formData.ward || !formData.firstName || !formData.lastName || !formData.hn}
               >
                 <Text style={styles.nextButtonText}>ต่อไป →</Text>
               </TouchableOpacity>
