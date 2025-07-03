@@ -11,7 +11,11 @@ const AssessmentSelectionScreen = () => {
 
   const handleSelectAssessment = (type) => {
     updatePatientData({ assessmentType: type });
-    navigation.navigate('PatientAssessment');
+    if (type === 'SOFA') {
+      navigation.navigate('PatientSOFA');
+    } else {
+      navigation.navigate('PatientAPACHE');
+    }
   };
 
   const handleBack = () => {
