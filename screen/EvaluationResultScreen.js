@@ -8,19 +8,51 @@ import { usePatientContext } from '../context/PatientContext';
 import { useNavigation } from '@react-navigation/native';
 import * as Animatable from 'react-native-animatable';
 
+// Translated Nursing Guidelines from PDF
 const nursingGuidelines = {
-  '1-4': { general: ['Screen and identify critical patients', 'Assess V/S every 1 hour', 'Resuscitation equipment and defibrillator ready', 'Experienced nurses or nurses with critical care training', 'Use REH scoring for every shift', 'Report to physician if changes or GCS drops by ≥2 points', 'Use ISBAR for case reporting'], icu_case_note: 'If ICU case, consider transferring patient to general ward/semi-ICU as first priority.' },
-  '5-6': { general: ['Screen and identify critical patients, transfer to semi-critical zone', 'Assess V/S every 1 hour', 'Resuscitation equipment and defibrillator ready', 'Experienced nurses or nurses with critical care training', 'Use REH scoring for every shift', 'Report to physician if changes or GCS drops by ≥2 points', 'Use ISBAR for case reporting'], icu_case_note: 'If ICU case, consider transferring patient to general ward/semi-ICU as second priority.' },
-  '7_no_icu': ['Screen and identify critical patients, transfer to critical zone near nursing counter', 'Assess V/S every 1 hour', 'Resuscitation equipment and defibrillator ready', 'Experienced nurses or nurses with critical care training', 'Use REH scoring for every shift', 'Report to physician if changes or GCS drops by ≥2 points', 'Use ISBAR for case reporting', 'Consider daily ICU bed reservation'],
-  '7_with_icu': ['Provide care according to ICU standards'],
+  '1-4': {
+    general: [
+      'คัดกรองและระบุผู้ป่วยวิกฤต',
+      'ประเมิน V/S ทุก 1 ชั่วโมง',
+      'มีอุปกรณ์ช่วยฟื้นคืนชีพ monitor เครื่อง defibrillation พร้อมใช้งาน',
+      'พยาบาลผู้ดูแลมีประสบการณ์หรือผ่านการอบรมวิกฤต',
+      'ใช้แบบประเมิน REH scoring ทุกเวร',
+      'รายงานแพทย์เมื่อมีการเปลี่ยนแปลงหรือ GCS ลดลง ≥2 คะแนน',
+      'ใช้ระบบ ISBAR ในการรายงานเคส',
+    ],
+    icu_case_note: '***กรณีcase ICU ให้พิจารณาย้ายผู้ป่วยไป ward semi ICU สามัญคิวแรก'
+  },
+  '5-6': {
+    general: [
+      'คัดกรองและระบุผู้ป่วยวิกฤต ย้ายผู้ป่วยไป zone กึ่งผู้ป่วยวิกฤต',
+      'ประเมิน V/S ทุก 1 ชั่วโมง',
+      'มีอุปกรณ์ช่วยฟื้นคืนชีพ monitor เครื่อง defibrillation พร้อมใช้งาน',
+      'พยาบาลผู้ดูแลมีประสบการณ์หรือผ่านการอบรมวิกฤต',
+      'ใช้แบบประเมิน REH scoring ทุกเวร',
+      'รายงานแพทย์เมื่อมีการเปลี่ยนแปลงหรือ GCS ลดลง ≥2 คะแนน',
+      'ใช้ระบบ ISBAR ในการรายงานเคส',
+    ],
+    icu_case_note: '***กรณีcase ICU ให้พิจารณาย้ายผู้ป่วยไป ward semi ICU สามัญคิวสอง'
+  },
+  '7_no_icu': [
+    'คัดกรองและระบุผู้ป่วยวิกฤต ย้ายผู้ป่วยไป zone ผู้ป่วยวิกฤตใกล้ counter พยาบาล',
+    'ประเมิน V/S ทุก 1 ชั่วโมง',
+    'มีอุปกรณ์ช่วยฟื้นคืนชีพ monitor เครื่อง defibrillation พร้อมใช้งาน',
+    'พยาบาลผู้ดูแลมีประสบการณ์หรือผ่านการอบรมวิกฤต',
+    'ใช้แบบประเมิน REH scoring ทุกเวร',
+    'รายงานแพทย์เมื่อมีการเปลี่ยนแปลงหรือ GCS ลดลง ≥2 คะแนน',
+    'ใช้ระบบ ISBAR ในการรายงานเคส',
+    'พิจารณาจองเตียง ICU ทุกวัน',
+  ],
+  '7_with_icu': [
+    'ดูแลตามมาตรฐาน ICU',
+  ],
 };
 
 const EvaluationResultScreen = () => {
   const { patientData, resetPatientData } = usePatientContext();
   const navigation = useNavigation();
-  const {
-    info, assessment, results
-  } = patientData;
+  const { info, assessment, results } = patientData;
 
   const handleNewPatient = () => {
     if (resetPatientData) resetPatientData();
@@ -51,10 +83,20 @@ const EvaluationResultScreen = () => {
     return null;
   }, [results.totalRehScore, info.ward]);
 
-  const ScoreDisplay = ({ label, value, isTotal = false }) => (
-    <View style={isTotal ? styles.totalScoreCard : styles.scoreItem}>
-      <Text style={isTotal ? styles.totalScoreLabel : styles.scoreLabel}>{label}</Text>
-      <Text style={isTotal ? styles.totalScoreValue : styles.scoreValue}>{value ?? 'N/A'}</Text>
+  const ScoreBreakdownRow = ({ category, rawScore, rehScore, isPriority = false }) => (
+    <View style={styles.breakdownRow}>
+        <Text style={styles.breakdownCategory}>{category}</Text>
+        <View style={styles.breakdownScores}>
+            {isPriority ? (
+                <Text style={styles.breakdownReh}>REH Score: {rehScore}</Text>
+            ) : (
+                <>
+                    <Text style={styles.breakdownRaw}>Score: {rawScore ?? 'N/A'}</Text>
+                    <Text style={styles.breakdownArrow}>→</Text>
+                    <Text style={styles.breakdownReh}>REH: {rehScore ?? 'N/A'}</Text>
+                </>
+            )}
+        </View>
     </View>
   );
 
@@ -75,7 +117,10 @@ const EvaluationResultScreen = () => {
         </Animatable.View>
 
         <Animatable.View animation="fadeInUp" duration={500} delay={100}>
-            <ScoreDisplay label="Total REH Score" value={results.totalRehScore} isTotal />
+            <View style={styles.totalScoreCard}>
+                <Text style={styles.totalScoreLabel}>Total REH Score</Text>
+                <Text style={styles.totalScoreValue}>{results.totalRehScore ?? 'N/A'}</Text>
+            </View>
         </Animatable.View>
 
         <Animatable.View animation="fadeInUp" duration={500} delay={200} style={[styles.card, riskStyle.container]}>
@@ -84,21 +129,10 @@ const EvaluationResultScreen = () => {
         </Animatable.View>
 
         <Animatable.View animation="fadeInUp" duration={500} delay={300} style={styles.card}>
-            <Text style={styles.cardTitle}>ที่มาของคะแนน REH</Text>
-            <View>
-                <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>จาก Priority</Text>
-                    <Text style={styles.detailValue}>{results.priorityRehScore} คะแนน</Text>
-                </View>
-                <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>จาก CCI</Text>
-                    <Text style={styles.detailValue}>{results.cciRehScore} คะแนน</Text>
-                </View>
-                <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>จาก {assessment.type}</Text>
-                    <Text style={styles.detailValue}>{results.assessmentRehScore} คะแนน</Text>
-                </View>
-            </View>
+            <Text style={styles.cardTitle}>รายละเอียดคะแนน</Text>
+            <ScoreBreakdownRow category="Priority" rehScore={results.priorityRehScore} isPriority />
+            <ScoreBreakdownRow category="CCI" rawScore={results.cciScore} rehScore={results.cciRehScore} />
+            <ScoreBreakdownRow category={assessment.type} rawScore={assessment.type === 'SOFA' ? results.sofaScore : results.apacheScore} rehScore={results.assessmentRehScore} />
         </Animatable.View>
 
         <Animatable.View animation="fadeInUp" duration={500} delay={400} style={styles.card}>
@@ -106,7 +140,7 @@ const EvaluationResultScreen = () => {
             {guidelines.map((item, index) => (
               <Text key={index} style={styles.guidelineItem}>• {item}</Text>
             ))}
-            {icuCaseNote && <Text style={styles.icuCaseNote}>*** {icuCaseNote}</Text>}
+            {icuCaseNote && <Text style={styles.icuCaseNote}>{icuCaseNote}</Text>}
         </Animatable.View>
 
       </ScrollView>
@@ -132,22 +166,54 @@ const styles = StyleSheet.create({
   totalScoreCard: { alignItems: 'center', padding: 20, backgroundColor: '#0B6258', borderRadius: 16, marginBottom: 16 },
   totalScoreLabel: { fontFamily: 'IBMPlexSans-Bold', fontSize: 20, color: '#FFFFFF', opacity: 0.9 },
   totalScoreValue: { fontFamily: 'IBMPlexSans-Bold', fontSize: 48, color: '#FFFFFF', marginTop: 4 },
-  riskHigh: { backgroundColor: '#FBE9E7', borderColor: '#D32F2F', borderWidth: 1 },
+  riskHigh: { backgroundColor: '#FBE9E7' },
   riskHighText: { color: '#D32F2F' },
-  riskMedium: { backgroundColor: '#FFF3E0', borderColor: '#F57C00', borderWidth: 1 },
+  riskMedium: { backgroundColor: '#FFF3E0' },
   riskMediumText: { color: '#F57C00' },
-  riskLow: { backgroundColor: '#E8F5E9', borderColor: '#388E3C', borderWidth: 1 },
+  riskLow: { backgroundColor: '#E8F5E9' },
   riskLowText: { color: '#388E3C' },
   riskText: { fontFamily: 'IBMPlexSansThai-Bold', fontSize: 18, textAlign: 'center' },
-  scoresGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
-  scoreItem: { backgroundColor: '#F4F7F6', width: '48%', padding: 15, borderRadius: 12, alignItems: 'center', marginBottom: 10 },
-  scoreLabel: { fontFamily: 'IBMPlexSans-SemiBold', fontSize: 14, color: '#7F8C8D' },
-  scoreValue: { fontFamily: 'IBMPlexSans-Bold', fontSize: 24, color: '#0B6258', marginTop: 4 },
   guidelineItem: { fontFamily: 'IBMPlexSansThai-Regular', fontSize: 15, color: '#2C3E50', marginBottom: 8, lineHeight: 22 },
   icuCaseNote: { fontFamily: 'IBMPlexSansThai-Bold', fontSize: 15, color: '#D32F2F', marginTop: 12, textAlign: 'center' },
   footer: { position: 'absolute', bottom: 0, left: 0, right: 0, padding: 20, paddingBottom: Platform.OS === 'ios' ? 30 : 20, backgroundColor: '#FFFFFF', borderTopWidth: 1, borderTopColor: '#E0E6EB' },
   nextButton: { backgroundColor: '#0B6258', borderRadius: 12, paddingVertical: 16, alignItems: 'center', shadowColor: '#0B6258', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 5 },
   nextButtonText: { color: 'white', fontSize: 18, fontFamily: 'IBMPlexSansThai-Bold' },
+  // Styles for Score Breakdown
+  breakdownRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F4F8',
+  },
+  breakdownCategory: {
+    fontFamily: 'IBMPlexSans-Bold',
+    fontSize: 16,
+    color: '#2C3E50',
+  },
+  breakdownScores: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  breakdownRaw: {
+    fontFamily: 'IBMPlexSans-Regular',
+    fontSize: 15,
+    color: '#7F8C8D',
+  },
+  breakdownArrow: {
+    fontFamily: 'IBMPlexSans-Bold',
+    fontSize: 16,
+    color: '#0B6258',
+    marginHorizontal: 8,
+  },
+  breakdownReh: {
+    fontFamily: 'IBMPlexSans-Bold',
+    fontSize: 16,
+    color: '#0B6258',
+    minWidth: 80,
+    textAlign: 'right',
+  },
 });
 
 export default EvaluationResultScreen;
