@@ -14,26 +14,9 @@ const PatientSOFAScreen = () => {
     cardiovascular: '',
     cns: '',
     renal: '',
-    priority: '',
-    cci: '',
   });
 
-  const priorityOptions = [
-    { label: '-- กรุณาเลือก --', value: '' },
-    { label: 'ระดับ 1: ผู้ป่วยวิกฤต ต้องอยู่ใน ICU', value: '4' },
-    { label: 'ระดับ 2: ผู้ป่วยที่ต้องการเฝ้าระวังอย่างใกล้ชิด', value: '3' },
-    { label: 'ระดับ 3: ผู้ป่วยวิกฤตที่มีโอกาสหายยาก', value: '2' },
-    { label: 'ระดับ 4: ผู้ป่วยอาการคงที่ ไม่จำเป็นต้องอยู่ใน ICU', value: '0' },
-  ];
-
-  const cciOptions = [
-    { label: '-- กรุณาเลือก --', value: '' },
-    { label: '0-2: โรคเบาหวาน, ความดันโลหิตสูง, ฯลฯ', value: '2' },
-    { label: '3-4: โรคอัมพาต, โรคไตวายเรื้อรัง, ฯลฯ', value: '1' },
-    { label: '>4: โรคตับแข็ง, มะเร็งระยะแพร่กระจาย, ฯลฯ', value: '0' },
-  ];
-
-  const calculateScore = () => {
+  const handleNext = () => {
     const sofaScore = 
       parseInt(formData.respiration || 0) +
       parseInt(formData.platelets || 0) +
@@ -42,30 +25,11 @@ const PatientSOFAScreen = () => {
       parseInt(formData.cns || 0) +
       parseInt(formData.renal || 0);
 
-    const priorityScore = parseInt(formData.priority || 0);
-    const cciScore = parseInt(formData.cci || 0);
-
-    let totalScore = priorityScore + cciScore;
-
-    if (sofaScore <= 6) totalScore += 2;
-    else if (sofaScore <= 9) totalScore += 3;
-    else if (sofaScore <= 12) totalScore += 4;
-    else if (sofaScore <= 15) totalScore += 2;
-
-    let riskLevel = "";
-    if (totalScore >= 7) riskLevel = "ความเสี่ยงสูง";
-    else if (totalScore >= 5) riskLevel = "ความเสี่ยงปานกลาง";
-    else riskLevel = "ความเสี่ยงต่ำ";
-
     updatePatientData({
       sofaScore,
-      priorityScore,
-      cciScore,
-      totalScore,
-      riskLevel
     });
 
-    navigation.navigate('EvaluationResult');
+    navigation.navigate('PatientPriority');
   };
 
   const handleBack = () => {
@@ -169,48 +133,6 @@ const PatientSOFAScreen = () => {
               </View>
             </View>
 
-            <Text style={styles.sectionTitle}>⚠️ ประเมินปัจจัยเสริม</Text>
-            
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Priority (ระดับความเร่งด่วน)</Text>
-              <View style={styles.optionsContainer}>
-                {priorityOptions.map((option, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    style={[
-                      styles.optionButton,
-                      formData.priority === option.value && styles.selectedOption
-                    ]}
-                    onPress={() => setFormData({...formData, priority: option.value})}
-                  >
-                    <Text style={formData.priority === option.value ? styles.selectedOptionText : styles.optionText}>
-                      {option.label}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>CCI (Charlson Comorbidity Index)</Text>
-              <View style={styles.optionsContainer}>
-                {cciOptions.map((option, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    style={[
-                      styles.optionButton,
-                      formData.cci === option.value && styles.selectedOption
-                    ]}
-                    onPress={() => setFormData({...formData, cci: option.value})}
-                  >
-                    <Text style={formData.cci === option.value ? styles.selectedOptionText : styles.optionText}>
-                      {option.label}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-
             <View style={styles.buttonGroup}>
               <TouchableOpacity 
                 style={styles.backButton} 
@@ -220,9 +142,9 @@ const PatientSOFAScreen = () => {
               </TouchableOpacity>
               <TouchableOpacity 
                 style={styles.calculateButton} 
-                onPress={calculateScore}
+                onPress={handleNext}
               >
-                <Text style={styles.calculateButtonText}>คำนวณคะแนน</Text>
+                <Text style={styles.calculateButtonText}>ต่อไป →</Text>
               </TouchableOpacity>
             </View>
           </View>

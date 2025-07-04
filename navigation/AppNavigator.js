@@ -4,8 +4,11 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import PatientInfoScreen from '../screen/PatientInfoScreen';
 import AssessmentSelectionScreen from '../screen/AssessmentSelectionScreen';
+
 import PatientSOFAScreen from '../screen/PatientSOFAScreen';
 import PatientAPACHEScreen from '../screen/PatientAPACHEScreen';
+import PatientPriorityScreen from '../screen/PatientPriorityScreen';
+import PatientCCIScreen from '../screen/PatientCCIScreen';
 
 
 const Stack = createNativeStackNavigator();
@@ -22,6 +25,8 @@ export default function AppNavigator() {
             <Stack.Screen name="AssessmentSelection" component={AssessmentSelectionScreen} />
             <Stack.Screen name="PatientSOFA" component={PatientSOFAScreen} />
             <Stack.Screen name="PatientAPACHE" component={PatientAPACHEScreen} />
+            <Stack.Screen name="PatientPriority" component={PatientPriorityScreen} />
+            <Stack.Screen name="PatientCCI" component={PatientCCIScreen} />
         </Stack.Navigator>
     );
 }
