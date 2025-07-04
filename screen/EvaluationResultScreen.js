@@ -1,16 +1,54 @@
-
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { usePatientContext } from '../context/PatientContext';
 import { useNavigation } from '@react-navigation/native';
 
+const nursingGuidelines = {
+  '1-4': {
+    general: [
+      'Screen and identify critical patients',
+      'Assess V/S every 1 hour',
+      'Resuscitation equipment and defibrillator ready',
+      'Experienced nurses or nurses with critical care training',
+      'Use REH scoring for every shift',
+      'Report to physician if changes or GCS drops by ≥2 points',
+      'Use ISBAR for case reporting',
+    ],
+    icu_case_note: 'If ICU case, consider transferring patient to general ward/semi-ICU as first priority.'
+  },
+  '5-6': {
+    general: [
+      'Screen and identify critical patients, transfer to semi-critical zone',
+      'Assess V/S every 1 hour',
+      'Resuscitation equipment and defibrillator ready',
+      'Experienced nurses or nurses with critical care training',
+      'Use REH scoring for every shift',
+      'Report to physician if changes or GCS drops by ≥2 points',
+      'Use ISBAR for case reporting',
+    ],
+    icu_case_note: 'If ICU case, consider transferring patient to general ward/semi-ICU as second priority.'
+  },
+  '7_no_icu': [
+    'Screen and identify critical patients, transfer to critical zone near nursing counter',
+    'Assess V/S every 1 hour',
+    'Resuscitation equipment and defibrillator ready',
+    'Experienced nurses or nurses with critical care training',
+    'Use REH scoring for every shift',
+    'Report to physician if changes or GCS drops by ≥2 points',
+    'Use ISBAR for case reporting',
+    'Consider daily ICU bed reservation',
+  ],
+  '7_with_icu': [
+    'Provide care according to ICU standards',
+  ],
+};
+
 const EvaluationResultScreen = () => {
   const { patientData } = usePatientContext();
   const navigation = useNavigation();
-
   const { 
-    info: { name, hn, ward }, 
+    info: { firstName, lastName, hn, ward }, 
     assessment: { type: assessmentType },
     results: { 
       sofaScore, apacheScore, 
@@ -34,37 +72,70 @@ const EvaluationResultScreen = () => {
     </View>
   );
 
+  const getGuidelines = () => {
+    if (totalRehScore >= 7) {
+      if (ward === 'ICU') {
+        return nursingGuidelines['7_with_icu'];
+      } else {
+        return nursingGuidelines['7_no_icu'];
+      }
+    } else if (totalRehScore >= 5) {
+      return nursingGuidelines['5-6'].general;
+    } else { // 1-4
+      return nursingGuidelines['1-4'].general;
+    }
+  };
+
+  const getIcuCaseNote = () => {
+    if (patientData.info.ward === 'ICU') { // Only show ICU case note if the patient is in ICU ward
+      if (totalRehScore >= 5 && totalRehScore <= 6) {
+        return nursingGuidelines['5-6'].icu_case_note;
+      } else if (totalRehScore >= 1 && totalRehScore <= 4) {
+        return nursingGuidelines['1-4'].icu_case_note;
+      }
+    }
+    return null;
+  };
+
+  const guidelines = getGuidelines();
+  const icuCaseNote = getIcuCaseNote();
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#eafaf7' }}>
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.card}>
           <View style={styles.cardHeader}>
-            <Text style={styles.cardHeaderText}>📋 ผลการประเมิน</Text>
+            <Text style={styles.cardHeaderText}>📋 Evaluation Result</Text>
           </View>
           <View style={styles.cardBody}>
-            <Text style={styles.sectionTitle}>ข้อมูลผู้ป่วย</Text>
-            {renderDetail('ชื่อ-สกุล:', name)}
+            <Text style={styles.sectionTitle}>Patient Information</Text>
+            {renderDetail('Name:', `${firstName} ${lastName}`)}
             {renderDetail('HN:', hn)}
-            {renderDetail('วอร์ด:', ward)}
+            {renderDetail('Ward:', ward)}
 
-            <Text style={styles.sectionTitle}>ผลคะแนน</Text>
-            {renderDetail(`คะแนน ${assessmentType}:`, assessmentScore)}
-            {renderDetail('คะแนน Priority (REH):', priorityRehScore)}
-            {renderDetail('คะแนน CCI:', cciScore)}
-            {renderDetail('คะแนน CCI (REH):', cciRehScore)}
-
+            <Text style={styles.sectionTitle}>Scores</Text>
+            {renderDetail(`${assessmentType} Score:`, assessmentScore)}
+            {renderDetail('Priority (REH) Score:', priorityRehScore)}
+            {renderDetail('CCI Score:', cciScore)}
+            {renderDetail('CCI (REH) Score:', cciRehScore)}
             <View style={styles.totalScoreContainer}>
-              <Text style={styles.totalScoreLabel}>คะแนนรวม (REH Score):</Text>
+              <Text style={styles.totalScoreLabel}>Total REH Score:</Text>
               <Text style={styles.totalScoreValue}>{totalRehScore}</Text>
             </View>
 
             <View style={styles.riskLevelContainer}>
-              <Text style={styles.riskLevelLabel}>ผลการประเมินความเสี่ยง:</Text>
+              <Text style={styles.riskLevelLabel}>Risk Assessment Result:</Text>
               <Text style={styles.riskLevelValue}>{riskLevel}</Text>
             </View>
 
+            <Text style={styles.sectionTitle}>Nursing Care Guidelines</Text>
+            {guidelines.map((item, index) => (
+              <Text key={index} style={styles.guidelineItem}>• {item}</Text>
+            ))}
+            {icuCaseNote && <Text style={styles.icuCaseNote}>*** {icuCaseNote}</Text>}
+
             <TouchableOpacity style={styles.newPatientButton} onPress={handleNewPatient}>
-              <Text style={styles.newPatientButtonText}>ประเมินผู้ป่วยรายใหม่</Text>
+              <Text style={styles.newPatientButtonText}>Assess New Patient</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -111,6 +182,7 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: '#b2dfd5',
         paddingBottom: 8,
+        marginTop: 20,
     },
     detailRow: {
         flexDirection: 'row',
@@ -165,6 +237,19 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         marginTop: 8,
         fontWeight: 'bold',
+    },
+    guidelineItem: {
+        fontSize: 15,
+        color: '#333',
+        marginBottom: 8,
+        paddingLeft: 10,
+    },
+    icuCaseNote: {
+        fontSize: 15,
+        color: '#D32F2F',
+        fontWeight: 'bold',
+        marginTop: 10,
+        textAlign: 'center',
     },
     newPatientButton: {
         backgroundColor: '#0b6258',
