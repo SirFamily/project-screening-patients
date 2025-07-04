@@ -84,12 +84,20 @@ const EvaluationResultScreen = () => {
         </Animatable.View>
 
         <Animatable.View animation="fadeInUp" duration={500} delay={300} style={styles.card}>
-            <Text style={styles.cardTitle}>รายละเอียดคะแนน</Text>
-            <View style={styles.scoresGrid}>
-                <ScoreDisplay label={`${assessment.type} Score`} value={assessment.type === 'SOFA' ? results.sofaScore : results.apacheScore} />
-                <ScoreDisplay label="Priority REH" value={results.priorityRehScore} />
-                <ScoreDisplay label="CCI Score" value={results.cciScore} />
-                <ScoreDisplay label="CCI REH" value={results.cciRehScore} />
+            <Text style={styles.cardTitle}>ที่มาของคะแนน REH</Text>
+            <View>
+                <View style={styles.detailRow}>
+                    <Text style={styles.detailLabel}>จาก Priority</Text>
+                    <Text style={styles.detailValue}>{results.priorityRehScore} คะแนน</Text>
+                </View>
+                <View style={styles.detailRow}>
+                    <Text style={styles.detailLabel}>จาก CCI</Text>
+                    <Text style={styles.detailValue}>{results.cciRehScore} คะแนน</Text>
+                </View>
+                <View style={styles.detailRow}>
+                    <Text style={styles.detailLabel}>จาก {assessment.type}</Text>
+                    <Text style={styles.detailValue}>{results.assessmentRehScore} คะแนน</Text>
+                </View>
             </View>
         </Animatable.View>
 

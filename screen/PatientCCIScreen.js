@@ -87,7 +87,7 @@ const PatientCCIScreen = () => {
 
     updatePatientData({
       cci: { comorbidities },
-      results: { ...results, cciScore, cciRehScore, totalRehScore, riskLevel },
+      results: { cciScore, cciRehScore, assessmentRehScore, priorityRehScore, totalRehScore, riskLevel },
     });
 
     navigation.navigate('EvaluationResult');
