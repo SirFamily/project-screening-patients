@@ -1,9 +1,16 @@
-// src/screens/AssessmentSelectionScreen.js
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  StatusBar
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { usePatientContext } from '../context/PatientContext';
 import { useNavigation } from '@react-navigation/native';
+import * as Animatable from 'react-native-animatable';
 
 const AssessmentSelectionScreen = () => {
   const { patientData, updatePatientData } = usePatientContext();
@@ -23,198 +30,141 @@ const AssessmentSelectionScreen = () => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#eafaf7' }}>
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="light-content" backgroundColor="#0B6258" />
       <ScrollView contentContainerStyle={styles.container}>
-        {/* <View style={styles.stepIndicator}>
-          <View style={[styles.step, styles.activeStep]}>
-            <Text style={styles.stepText}>1</Text>
-          </View>
-          <View style={[styles.step, styles.activeStep]}>
-            <Text style={styles.stepText}>2</Text>
-          </View>
-          <View style={styles.step}>
-            <Text style={styles.stepText}>3</Text>
-          </View>
-          <View style={styles.step}>
-            <Text style={styles.stepText}>4</Text>
-          </View>
-          <View style={styles.step}>
-            <Text style={styles.stepText}>5</Text>
-          </View>
-        </View> */}
+        <Animatable.View animation="fadeInDown" duration={1000} style={styles.header}>
+          <Text style={styles.title}>เลือกแบบประเมิน</Text>
+          <Text style={styles.subtitle}>Assessment Selection</Text>
+        </Animatable.View>
 
-        <View style={styles.card}>
-          <View style={styles.cardHeader}>
-            <Text style={styles.cardHeaderText}>📋 เลือกแบบประเมิน</Text>
-          </View>
-          <View style={styles.cardBody}>
-            <View style={styles.infoBox}>
-              <Text style={styles.infoText}>ℹ️ กรุณาเลือกแบบประเมินที่ต้องการใช้ในการประเมินผู้ป่วย</Text>
-            </View>
-
-            <View style={styles.assessmentOptions}>
-              <TouchableOpacity 
-                style={styles.assessmentCard}
-                onPress={() => handleSelectAssessment('SOFA')}
-              >
+        <Animatable.View animation="fadeInUp" duration={1000} delay={200}>
+          <TouchableOpacity
+            style={styles.assessmentCard}
+            onPress={() => handleSelectAssessment('SOFA')}
+          >
+            <View style={styles.cardIconContainer}>
                 <Text style={styles.assessmentIcon}>🫁</Text>
+            </View>
+            <View style={styles.cardTextContainer}>
                 <Text style={styles.assessmentTitle}>SOFA Score</Text>
                 <Text style={styles.assessmentDescription}>
-                  ประเมิน 6 ระบบร่างกาย: ระบบหายใจ, เกล็ดเลือด, ตับ, ระบบไหลเวียนโลหิต, ระบบประสาท, ไต
+                ประเมิน 6 ระบบของร่างกายเพื่อติดตามการทำงานของอวัยวะ
                 </Text>
-                <Text style={styles.selectButton}>เลือก SOFA</Text>
-              </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
 
-              <TouchableOpacity 
-                style={styles.assessmentCard}
-                onPress={() => handleSelectAssessment('APACHE')}
-              >
+          <TouchableOpacity
+            style={styles.assessmentCard}
+            onPress={() => handleSelectAssessment('APACHE')}
+          >
+            <View style={styles.cardIconContainer}>
                 <Text style={styles.assessmentIcon}>❤️</Text>
+            </View>
+            <View style={styles.cardTextContainer}>
                 <Text style={styles.assessmentTitle}>APACHE II Score</Text>
                 <Text style={styles.assessmentDescription}>
-                  ประเมิน 12 ตัวแปรทางสรีรวิทยา: อุณหภูมิ, ความดันโลหิต, อัตราการเต้นหัวใจ, การหายใจ ฯลฯ
+                ประเมินความรุนแรงของโรคโดยใช้ 12 ตัวแปรทางสรีรวิทยา
                 </Text>
-                <Text style={styles.selectButton}>เลือก APACHE II</Text>
-              </TouchableOpacity>
             </View>
+          </TouchableOpacity>
+        </Animatable.View>
 
-            <TouchableOpacity 
-              style={styles.backButton} 
+        <Animatable.View animation="fadeInUp" duration={1000} delay={400}>
+            <TouchableOpacity
+              style={styles.backButton}
               onPress={handleBack}
             >
-              <Text style={styles.backButtonText}>← ย้อนกลับ</Text>
+              <Text style={styles.backButtonText}>‹ ย้อนกลับ</Text>
             </TouchableOpacity>
-          </View>
-        </View>
+        </Animatable.View>
       </ScrollView>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#eafaf7',
+  },
   container: {
     flexGrow: 1,
-    backgroundColor: '#eafaf7', // เปลี่ยนพื้นหลังให้สว่างและสะอาดตา
-    padding: 20,
-    paddingBottom: 60,
-  },
-  stepIndicator: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginVertical: 28,
-    alignItems: 'center',
-  },
-  step: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: '#b2dfd5', // สีหลักอ่อน
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 2,
-  },
-  activeStep: {
-    backgroundColor: '#0b6258', // สีหลัก
-  },
-  stepText: {
-    fontWeight: 'bold',
-    fontSize: 18,
-    color: '#0b6258',
-  },
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: 18,
-    elevation: 6,
-    marginBottom: 25,
-    overflow: 'hidden',
-    shadowColor: '#0b6258',
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
-  },
-  cardHeader: {
-    backgroundColor: '#0b6258',
-    padding: 18,
-    borderTopLeftRadius: 18,
-    borderTopRightRadius: 18,
-  },
-  cardHeaderText: {
-    color: 'white',
-    fontSize: 20,
-    fontWeight: '700',
-    letterSpacing: 0.5,
-  },
-  cardBody: {
     padding: 24,
   },
-  infoBox: {
-    backgroundColor: '#eafaf7',
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 20,
-    borderLeftWidth: 4,
-    borderLeftColor: '#0b6258',
+  header: {
+    marginBottom: 32,
+    alignItems: 'center',
   },
-  infoText: {
-    color: '#0b6258',
-    fontSize: 16,
-    fontWeight: '500',
+  title: {
+    fontSize: 28,
+    fontFamily: 'IBMPlexSansThai-Bold',
+    color: '#0B6258',
+    textAlign: 'center',
   },
-  assessmentOptions: {
-    marginTop: 10,
+  subtitle: {
+    fontSize: 18,
+    fontFamily: 'IBMPlexSans-Regular',
+    color: '#0B6258',
+    textAlign: 'center',
+    opacity: 0.8,
+    marginTop: 4,
   },
   assessmentCard: {
-    backgroundColor: '#f6fffd',
-    borderRadius: 14,
-    padding: 22,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 20,
     marginBottom: 18,
+    flexDirection: 'row',
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 5,
     borderWidth: 1.5,
+    borderColor: '#FFFFFF',
+    transition: 'all 0.3s ease',
+  },
+  cardIconContainer: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#f6fffd',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
     borderColor: '#b2dfd5',
-    elevation: 2,
+    borderWidth: 1.5,
   },
   assessmentIcon: {
-    fontSize: 40,
-    marginBottom: 8,
+    fontSize: 30,
+  },
+  cardTextContainer: {
+    flex: 1,
   },
   assessmentTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#0b6258',
-    marginBottom: 8,
+    fontFamily: 'IBMPlexSansThai-Bold',
+    color: '#0B6258',
+    marginBottom: 4,
   },
   assessmentDescription: {
-    color: '#0b6258',
-    textAlign: 'center',
-    marginBottom: 15,
-    opacity: 0.8,
-    fontSize: 15,
-  },
-  selectButton: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '700',
-    backgroundColor: '#0b6258',
-    borderRadius: 25,
-    paddingVertical: 10,
-    paddingHorizontal: 32,
-    overflow: 'hidden',
-    marginTop: 5,
-    elevation: 1,
-    textAlign: 'center',
+    fontSize: 14,
+    fontFamily: 'IBMPlexSansThai-Regular',
+    color: '#0B6258',
+    opacity: 0.9,
+    lineHeight: 20,
   },
   backButton: {
     alignSelf: 'center',
-    marginTop: 18,
-    paddingVertical: 8,
-    paddingHorizontal: 24,
-    borderRadius: 20,
-    backgroundColor: '#b2dfd5',
+    marginTop: 16,
   },
   backButtonText: {
-    color: '#0b6258',
+    color: '#0B6258',
     fontSize: 16,
-    fontWeight: '700',
+    fontFamily: 'IBMPlexSansThai-Bold',
+    textDecorationLine: 'underline',
   },
 });
 
