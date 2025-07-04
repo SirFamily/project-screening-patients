@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "project-screening-patients",
+    "name": "ICU scoring",
     "slug": "project-screening-patients",
     "version": "1.0.0",
     "orientation": "portrait",
