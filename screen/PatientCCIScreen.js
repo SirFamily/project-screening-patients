@@ -1,93 +1,96 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Switch } from 'react-native';
+import React, { useState, useMemo } from 'react';
+import {
+  View, Text, StyleSheet, TouchableOpacity, ScrollView,
+  Switch, StatusBar, Platform
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { usePatientContext } from '../context/PatientContext';
 import { useNavigation } from '@react-navigation/native';
+import * as Animatable from 'react-native-animatable';
+
+const cciSections = {
+  score1: {
+    title: 'กลุ่มคะแนน 1',
+    icon: '1️⃣',
+    items: {
+      ihd: 'โรคกล้ามเนื้อหัวใจตาย (IHD)', chf: 'ภาวะหัวใจล้มเหลว (CHF)', pad: 'โรคหลอดเลือดส่วนปลาย (PAD)',
+      stroke: 'โรคหลอดเลือดสมอง (Stroke)', dementia: 'โรคความจำเสื่อม (Dementia)', cld: 'โรคปอดเรื้อรัง',
+      cntd: 'โรคของเนื้อเยื่อเกี่ยวพัน (CNT disease)', pud: 'โรคแผลในกระเพาะอาหาร', lsd: 'โรคตับชนิดไม่รุนแรง (CTP A)',
+      dm: 'โรคเบาหวาน', htn: 'โรคความดันโลหิตสูง', warfarin: 'ผู้ป่วยที่ได้รับยา Warfarin',
+    }
+  },
+  score2: {
+    title: 'กลุ่มคะแนน 2',
+    icon: '2️⃣',
+    items: {
+      paralysis: 'โรคอัมพาต', dm_comp: 'โรคเบาหวานที่มีภาวะแทรกซ้อน', ckd: 'โรคไตวายเรื้อรัง (CKD 4-5)',
+      cancer_non_meta: 'มะเร็ง (ยังไม่แพร่กระจาย)', pressure_ulcer: 'แผลกดทับ',
+    }
+  },
+  score3: {
+    title: 'กลุ่มคะแนน 3',
+    icon: '3️⃣',
+    items: { lscd: 'โรคตับแข็ง (CTP B-C)' }
+  },
+  score6: {
+    title: 'กลุ่มคะแนน 6',
+    icon: '6️⃣',
+    items: { cancer_meta: 'มะเร็งระยะแพร่กระจาย', pcnr: 'ผู้ป่วย PC/NR/Hopeless' }
+  },
+};
 
 const PatientCCIScreen = () => {
   const { patientData, updatePatientData } = usePatientContext();
   const navigation = useNavigation();
-
-  const initialComorbidities = {
-    ihd: false, chf: false, pad: false, stroke: false, dementia: false, cld: false, cntd: false, pud: false, lsd: false, dm: false, htn: false, warfarin: false, // Score 1
-    paralysis: false, dm_comp: false, ckd: false, cancer_non_meta: false, pressure_ulcer: false, // Score 2
-    lscd: false, // Score 3
-    cancer_meta: false, pcnr: false, // Score 6
-  };
-
-  const [comorbidities, setComorbidities] = useState(initialComorbidities);
+  const [comorbidities, setComorbidities] = useState({});
 
   const toggleSwitch = (key) => {
     setComorbidities(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const calculateCciScore = () => {
+  const { cciScore, cciRehScore } = useMemo(() => {
     let score = 0;
-    // Score 1
-    if (comorbidities.ihd || comorbidities.chf || comorbidities.pad || comorbidities.stroke || comorbidities.dementia || comorbidities.cld || comorbidities.cntd || comorbidities.pud || comorbidities.lsd || comorbidities.dm || comorbidities.htn || comorbidities.warfarin) score += 1;
-    // Score 2
-    if (comorbidities.paralysis || comorbidities.dm_comp || comorbidities.ckd || comorbidities.cancer_non_meta || comorbidities.pressure_ulcer) score += 2;
-    // Score 3
-    if (comorbidities.lscd) score += 3;
-    // Score 6
-    if (comorbidities.cancer_meta || comorbidities.pcnr) score += 6;
-    return score;
-  };
+    if (Object.keys(cciSections.score1.items).some(k => comorbidities[k])) score += 1;
+    if (Object.keys(cciSections.score2.items).some(k => comorbidities[k])) score += 2;
+    if (Object.keys(cciSections.score3.items).some(k => comorbidities[k])) score += 3;
+    if (Object.keys(cciSections.score6.items).some(k => comorbidities[k])) score += 6;
+    
+    let rehScore = 0;
+    if (score <= 2) rehScore = 2;
+    else if (score <= 4) rehScore = 1;
 
-  const getCciRehScore = (cciScore) => {
-    if (cciScore <= 2) return 2;
-    if (cciScore <= 4) return 1;
-    return 0; // > 4
-  };
-
-  const getAssessmentRehScore = () => {
-    const { assessment, results } = patientData;
-    if (assessment.type === 'SOFA') {
-        if (results.sofaScore <= 6) return 2;
-        if (results.sofaScore <= 9) return 3;
-        if (results.sofaScore <= 12) return 4;
-        if (results.sofaScore <= 15) return 2;
-        return 0; // > 15
-    } else { // APACHE II
-        if (results.apacheScore <= 9) return 2;
-        if (results.apacheScore <= 14) return 3;
-        if (results.apacheScore <= 19) return 4;
-        if (results.apacheScore <= 24) return 2;
-        return 0; // > 24
-    }
-  };
+    return { cciScore: score, cciRehScore: rehScore };
+  }, [comorbidities]);
 
   const handleCalculate = () => {
-    const cciScore = calculateCciScore();
-    const cciRehScore = getCciRehScore(cciScore);
-    const assessmentRehScore = getAssessmentRehScore();
-    const priorityRehScore = patientData.priority.rehScore || 0;
+    const { assessment, results, priority } = patientData;
+    let assessmentRehScore = 0;
+    if (assessment.type === 'SOFA') {
+        if (results.sofaScore <= 6) assessmentRehScore = 2;
+        else if (results.sofaScore <= 9) assessmentRehScore = 3;
+        else if (results.sofaScore <= 12) assessmentRehScore = 4;
+        else if (results.sofaScore <= 15) assessmentRehScore = 2;
+    } else { // APACHE II
+        if (results.apacheScore <= 9) assessmentRehScore = 2;
+        else if (results.apacheScore <= 14) assessmentRehScore = 3;
+        else if (results.apacheScore <= 19) assessmentRehScore = 4;
+        else if (results.apacheScore <= 24) assessmentRehScore = 2;
+    }
 
+    const priorityRehScore = priority.rehScore || 0;
     const totalRehScore = cciRehScore + assessmentRehScore + priorityRehScore;
 
     let riskLevel = "";
     if (totalRehScore >= 7) riskLevel = "รายงานแพทย์พิจารณาขอเข้า ICU";
     else if (totalRehScore >= 5) riskLevel = "รายงานแพทย์พิจารณาขอเตียง ICU";
-    else riskLevel = "รายงานแพทย์พิจารณาขอเตียง ICU"; // 1-4
+    else riskLevel = "รายงานแพทย์พิจารณาขอเตียง ICU";
 
     updatePatientData({
       cci: { comorbidities },
-      results: {
-        ...patientData.results,
-        cciScore,
-        cciRehScore,
-        assessmentRehScore, // Make sure this is passed
-        priorityRehScore, // Make sure this is passed
-        totalRehScore,
-        riskLevel,
-      },
+      results: { ...results, cciScore, cciRehScore, totalRehScore, riskLevel },
     });
 
     navigation.navigate('EvaluationResult');
-  };
-
-  const handleBack = () => {
-    navigation.goBack();
   };
 
   const renderSwitch = (label, key) => (
@@ -95,161 +98,73 @@ const PatientCCIScreen = () => {
       <Text style={styles.switchLabel}>{label}</Text>
       <Switch
         onValueChange={() => toggleSwitch(key)}
-        value={comorbidities[key]}
-        trackColor={{ false: "#767577", true: "#81b0ff" }}
-        thumbColor={comorbidities[key] ? "#0b6258" : "#f4f3f4"}
+        value={!!comorbidities[key]}
+        trackColor={{ false: "#E9E9EA", true: "#B2DFD5" }}
+        thumbColor={comorbidities[key] ? "#0B6258" : "#f4f3f4"}
       />
     </View>
   );
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#eafaf7' }}>
-      <ScrollView contentContainerStyle={styles.container}>
-        <View style={styles.card}>
-          <View style={styles.cardHeader}>
-            <Text style={styles.cardHeaderText}>🩺 ประเมิน CCI</Text>
-          </View>
-          <View style={styles.cardBody}>
-            <View style={styles.infoBox}>
-              <Text style={styles.infoText}>ℹ️ กรุณาเลือกโรคประจำตัวทั้งหมดของผู้ป่วย</Text>
-            </View>
-
-            <Text style={styles.sectionTitle}>กลุ่มคะแนน 1</Text>
-            {renderSwitch('โรคกล้ามเนื้อหัวใจตาย (IHD)', 'ihd')}
-            {renderSwitch('ภาวะหัวใจล้มเหลว (CHF)', 'chf')}
-            {renderSwitch('โรคหลอดเลือดส่วนปลาย (PAD)', 'pad')}
-            {renderSwitch('โรคหลอดเลือดสมอง (Stroke)', 'stroke')}
-            {renderSwitch('โรคความจำเสื่อม (Dementia)', 'dementia')}
-            {renderSwitch('โรคปอดเรื้อรัง', 'cld')}
-            {renderSwitch('โรคของเนื้อเยื่อเกี่ยวพัน (CNT disease)', 'cntd')}
-            {renderSwitch('โรคแผลในกระเพาะอาหาร', 'pud')}
-            {renderSwitch('โรคตับชนิดไม่รุนแรง (CTP A)', 'lsd')}
-            {renderSwitch('โรคเบาหวาน', 'dm')}
-            {renderSwitch('โรคความดันโลหิตสูง', 'htn')}
-            {renderSwitch('ผู้ป่วยที่ได้รับยา Warfarin', 'warfarin')}
-
-            <Text style={styles.sectionTitle}>กลุ่มคะแนน 2</Text>
-            {renderSwitch('โรคอัมพาต', 'paralysis')}
-            {renderSwitch('โรคเบาหวานที่มีภาวะแทรกซ้อน', 'dm_comp')}
-            {renderSwitch('โรคไตวายเรื้อรัง (CKD 4-5)', 'ckd')}
-            {renderSwitch('มะเร็ง (ยังไม่แพร่กระจาย)', 'cancer_non_meta')}
-            {renderSwitch('แผลกดทับ', 'pressure_ulcer')}
-
-            <Text style={styles.sectionTitle}>กลุ่มคะแนน 3</Text>
-            {renderSwitch('โรคตับแข็ง (CTP B-C)', 'lscd')}
-
-            <Text style={styles.sectionTitle}>กลุ่มคะแนน 6</Text>
-            {renderSwitch('มะเร็งระยะแพร่กระจาย', 'cancer_meta')}
-            {renderSwitch('ผู้ป่วย PC/NR/Hopeless', 'pcnr')}
-
-            <View style={styles.buttonGroup}>
-              <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-                <Text style={styles.backButtonText}>← ย้อนกลับ</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.calculateButton} onPress={handleCalculate}>
-                <Text style={styles.calculateButtonText}>คำนวณคะแนน</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="dark-content" backgroundColor="#F4F7F6" />
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Text style={styles.backButtonText}>‹</Text>
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>CCI Score</Text>
+        <View style={styles.totalScoreCircle}>
+          <Text style={styles.totalScoreLabel}>CCI</Text>
+          <Text style={styles.totalScoreValue}>{cciScore}</Text>
         </View>
+      </View>
+
+      <ScrollView contentContainerStyle={styles.container}>
+        {Object.values(cciSections).map((section, index) => (
+          <Animatable.View key={section.title} animation="fadeInUp" duration={500} delay={index * 100}>
+            <View style={styles.card}>
+              <View style={styles.cardHeader}>
+                <Text style={styles.cardIcon}>{section.icon}</Text>
+                <Text style={styles.cardTitle}>{section.title}</Text>
+              </View>
+              <View style={styles.cardBody}>
+                {Object.entries(section.items).map(([key, label]) => renderSwitch(label, key))}
+              </View>
+            </View>
+          </Animatable.View>
+        ))}
       </ScrollView>
+
+      <Animatable.View animation="slideInUp" duration={500} style={styles.footer}>
+        <TouchableOpacity style={styles.nextButton} onPress={handleCalculate}>
+          <Text style={styles.nextButtonText}>ดูผลการประเมิน</Text>
+        </TouchableOpacity>
+      </Animatable.View>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flexGrow: 1,
-        backgroundColor: '#eafaf7',
-        padding: 20,
-        paddingBottom: 60,
-    },
-    card: {
-        backgroundColor: 'white',
-        borderRadius: 18,
-        elevation: 6,
-        marginBottom: 25,
-        overflow: 'hidden',
-        shadowColor: '#0b6258',
-        shadowOpacity: 0.08,
-        shadowRadius: 8,
-        shadowOffset: { width: 0, height: 2 },
-    },
-    cardHeader: {
-        backgroundColor: '#0b6258',
-        padding: 18,
-    },
-    cardHeaderText: {
-        color: 'white',
-        fontSize: 19,
-        fontWeight: '700',
-    },
-    cardBody: {
-        padding: 22,
-    },
-    infoBox: {
-        backgroundColor: '#b2dfd5',
-        padding: 15,
-        borderRadius: 10,
-        marginBottom: 20,
-    },
-    infoText: {
-        color: '#0b6258',
-        fontSize: 16,
-        fontWeight: '600',
-    },
-    sectionTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#0b6258',
-        marginTop: 20,
-        marginBottom: 10,
-        borderBottomWidth: 1,
-        borderBottomColor: '#b2dfd5',
-        paddingBottom: 5,
-    },
-    switchRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingVertical: 10,
-    },
-    switchLabel: {
-        fontSize: 16,
-        color: '#0b6258',
-    },
-    buttonGroup: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginTop: 30,
-        gap: 10,
-    },
-    backButton: {
-        backgroundColor: 'transparent',
-        borderWidth: 1.5,
-        borderColor: '#0b6258',
-        borderRadius: 30,
-        paddingVertical: 14,
-        flex: 1,
-        alignItems: 'center',
-    },
-    backButtonText: {
-        color: '#0b6258',
-        fontSize: 16,
-        fontWeight: '700',
-    },
-    calculateButton: {
-        backgroundColor: '#0b6258',
-        borderRadius: 30,
-        paddingVertical: 14,
-        flex: 1,
-        alignItems: 'center',
-    },
-    calculateButtonText: {
-        color: 'white',
-        fontSize: 18,
-        fontWeight: '700',
-    },
+  safeArea: { flex: 1, backgroundColor: '#F4F7F6' },
+  container: { paddingHorizontal: 20, paddingBottom: 120, paddingTop: 10 },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 20, backgroundColor: '#F4F7F6' },
+  backButton: { width: 44, height: 44, borderRadius: 22, backgroundColor: '#FFFFFF', justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2, elevation: 3 },
+  backButtonText: { fontSize: 24, color: '#0B6258', fontWeight: 'bold' },
+  headerTitle: { fontFamily: 'IBMPlexSansThai-Bold', fontSize: 22, color: '#0B6258' },
+  totalScoreCircle: { width: 60, height: 60, borderRadius: 30, backgroundColor: '#0B6258', justifyContent: 'center', alignItems: 'center', elevation: 5, shadowColor: '#0B6258', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 4 },
+  totalScoreLabel: { fontFamily: 'IBMPlexSans-Regular', fontSize: 12, color: '#FFFFFF', opacity: 0.8 },
+  totalScoreValue: { fontFamily: 'IBMPlexSans-Bold', fontSize: 22, color: '#FFFFFF' },
+  card: { backgroundColor: '#FFFFFF', borderRadius: 16, marginBottom: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 5, elevation: 2, overflow: 'hidden' },
+  cardHeader: { flexDirection: 'row', alignItems: 'center', padding: 16, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: '#F0F4F8' },
+  cardIcon: { fontSize: 24, marginRight: 12 },
+  cardTitle: { fontFamily: 'IBMPlexSansThai-Bold', fontSize: 17, color: '#2C3E50' },
+  cardBody: { paddingHorizontal: 16, paddingBottom: 8 },
+  switchRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: '#F0F4F8' },
+  switchRowLast: { borderBottomWidth: 0 },
+  switchLabel: { flex: 1, fontFamily: 'IBMPlexSansThai-Regular', fontSize: 15, color: '#2C3E50' },
+  footer: { position: 'absolute', bottom: 0, left: 0, right: 0, padding: 20, paddingBottom: Platform.OS === 'ios' ? 30 : 20, backgroundColor: '#FFFFFF', borderTopWidth: 1, borderTopColor: '#E0E6EB' },
+  nextButton: { backgroundColor: '#0B6258', borderRadius: 12, paddingVertical: 16, alignItems: 'center', shadowColor: '#0B6258', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 5 },
+  nextButtonText: { color: 'white', fontSize: 18, fontFamily: 'IBMPlexSansThai-Bold' },
 });
 
 export default PatientCCIScreen;

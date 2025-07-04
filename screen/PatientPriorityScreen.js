@@ -1,204 +1,186 @@
-
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import {
+  View, Text, StyleSheet, TouchableOpacity, ScrollView,
+  StatusBar, Platform
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { usePatientContext } from '../context/PatientContext';
 import { useNavigation } from '@react-navigation/native';
+import * as Animatable from 'react-native-animatable';
+
+const priorityOptions = [
+  { 
+    title: 'Priority 1',
+    description: 'วิกฤต, สัญญาณชีพไม่คงที่, ต้องการการดูแลใกล้ชิดใน ICU, โอกาสรอด >50%', 
+    value: '4',
+    icon: '🔴' 
+  },
+  { 
+    title: 'Priority 2',
+    description: 'ต้องการเฝ้าระวังใกล้ชิด (เช่น เสี่ยงต่อภาวะหายใจล้มเหลว)', 
+    value: '3',
+    icon: '🟠'
+  },
+  { 
+    title: 'Priority 3',
+    description: 'วิกฤต, แต่โอกาสหายจากโรคยาก, อวัยวะล้มเหลวหลายระบบ, โอกาสรอด <50%', 
+    value: '2',
+    icon: '🟡'
+  },
+  { 
+    title: 'Priority 4',
+    description: 'อาการคงที่, ไม่จำเป็นต้องอยู่ ICU (เช่น ผู้ป่วยมะเร็งระยะสุดท้าย)', 
+    value: '0',
+    icon: '🟢'
+  },
+];
 
 const PatientPriorityScreen = () => {
   const { updatePatientData } = usePatientContext();
   const navigation = useNavigation();
   const [priority, setPriority] = useState('');
 
-  const priorityOptions = [
-    { label: '-- กรุณาเลือก --', value: '' },
-    { label: 'Priority 1: วิกฤต, สัญญาณชีพไม่คงที่, ต้องการการดูแลใกล้ชิดใน ICU, โอกาสรอด >50%', value: '4' },
-    { label: 'Priority 2: ต้องการเฝ้าระวังใกล้ชิด (เช่น เสี่ยงต่อภาวะหายใจล้มเหลว)', value: '3' },
-    { label: 'Priority 3: วิกฤต, แต่โอกาสหายจากโรคยาก, อวัยวะล้มเหลวหลายระบบ, โอกาสรอด <50%', value: '2' },
-    { label: 'Priority 4: อาการคงที่, ไม่จำเป็นต้องอยู่ ICU (เช่น ผู้ป่วยมะเร็งระยะสุดท้าย)', value: '0' },
-  ];
-
   const handleNext = () => {
     updatePatientData({
-        priority: { rehScore: parseInt(priority || 0) }
+        priority: { rehScore: parseInt(priority || 0, 10) }
     });
     navigation.navigate('PatientCCI');
   };
 
-  const handleBack = () => {
-    navigation.goBack();
-  };
-
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#eafaf7' }}>
-      <ScrollView contentContainerStyle={styles.container}>
-        <View style={styles.card}>
-          <View style={styles.cardHeader}>
-            <Text style={styles.cardHeaderText}>⚠️ ประเมิน Priority</Text>
-          </View>
-          <View style={styles.cardBody}>
-            <View style={styles.infoBox}>
-              <Text style={styles.infoText}>ℹ️ กรุณาเลือกระดับความเร่งด่วนของผู้ป่วย</Text>
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Priority (ระดับความเร่งด่วน)</Text>
-              <View style={styles.optionsContainer}>
-                {priorityOptions.map((option, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    style={[
-                      styles.optionButton,
-                      priority === option.value && styles.selectedOption
-                    ]}
-                    onPress={() => setPriority(option.value)}
-                  >
-                    <Text style={priority === option.value ? styles.selectedOptionText : styles.optionText}>
-                      {option.label}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-
-            <View style={styles.buttonGroup}>
-              <TouchableOpacity 
-                style={styles.backButton} 
-                onPress={handleBack}
-              >
-                <Text style={styles.backButtonText}>← ย้อนกลับ</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={[styles.nextButton, !priority && styles.nextButtonDisabled]} 
-                onPress={handleNext}
-                disabled={!priority}
-              >
-                <Text style={styles.nextButtonText}>ต่อไป →</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="dark-content" backgroundColor="#F4F7F6" />
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Text style={styles.backButtonText}>‹</Text>
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Patient Priority</Text>
+        <View style={styles.totalScoreCircle}>
+          <Text style={styles.totalScoreLabel}>REH</Text>
+          <Text style={styles.totalScoreValue}>{priority || '0'}</Text>
         </View>
+      </View>
+
+      <ScrollView contentContainerStyle={styles.container}>
+        <Animatable.Text animation="fadeIn" duration={600} style={styles.screenDescription}>
+          กรุณาเลือกระดับความเร่งด่วนของผู้ป่วยตามเกณฑ์ที่กำหนด
+        </Animatable.Text>
+        
+        {priorityOptions.map((option, index) => (
+          <Animatable.View key={option.value} animation="fadeInUp" duration={500} delay={index * 100}>
+            <TouchableOpacity
+              style={[
+                styles.optionCard,
+                priority === option.value && styles.selectedOptionCard
+              ]}
+              onPress={() => setPriority(option.value)}
+            >
+              <Text style={styles.optionIcon}>{option.icon}</Text>
+              <View style={styles.optionTextContainer}>
+                <Text style={[styles.optionTitle, priority === option.value && styles.selectedOptionText]}>{option.title}</Text>
+                <Text style={[styles.optionDescription, priority === option.value && styles.selectedOptionText]}>{option.description}</Text>
+              </View>
+              <View style={[styles.radioCircle, priority === option.value && styles.radioCircleSelected]}>
+                {priority === option.value && <View style={styles.radioInnerCircle} />}
+              </View>
+            </TouchableOpacity>
+          </Animatable.View>
+        ))}
       </ScrollView>
+
+      <Animatable.View animation="slideInUp" duration={500} style={styles.footer}>
+        <TouchableOpacity 
+          style={[styles.nextButton, !priority && styles.nextButtonDisabled]} 
+          onPress={handleNext}
+          disabled={!priority}
+        >
+          <Text style={styles.nextButtonText}>ต่อไป (Next)</Text>
+        </TouchableOpacity>
+      </Animatable.View>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flexGrow: 1,
-        backgroundColor: '#eafaf7',
-        padding: 20,
-        paddingBottom: 60,
-      },
-      card: {
-        backgroundColor: 'white',
-        borderRadius: 18,
-        elevation: 6,
-        marginBottom: 25,
-        overflow: 'hidden',
-        shadowColor: '#0b6258',
-        shadowOpacity: 0.08,
-        shadowRadius: 8,
-        shadowOffset: { width: 0, height: 2 },
-      },
-      cardHeader: {
-        backgroundColor: '#0b6258',
-        padding: 18,
-        borderTopLeftRadius: 18,
-        borderTopRightRadius: 18,
-      },
-      cardHeaderText: {
-        color: 'white',
-        fontSize: 19,
-        fontWeight: '700',
-        letterSpacing: 0.5,
-      },
-      cardBody: {
-        padding: 22,
-      },
-      infoBox: {
-        backgroundColor: '#b2dfd5',
-        padding: 15,
-        borderRadius: 10,
-        marginBottom: 20,
-      },
-      infoText: {
-        color: '#0b6258',
-        fontSize: 16,
-        fontWeight: '600',
-      },
-      inputGroup: {
-        marginBottom: 18,
-      },
-      label: {
-        marginBottom: 8,
-        fontSize: 15,
-        color: '#0b6258',
-        fontWeight: '600',
-      },
-      optionsContainer: {
-        marginTop: 5,
-      },
-      optionButton: {
-        padding: 13,
-        borderWidth: 1.5,
-        borderColor: '#b2dfd5',
-        borderRadius: 10,
-        marginBottom: 10,
-        backgroundColor: '#f6fffd',
-      },
-      selectedOption: {
-        backgroundColor: '#0b6258',
-        borderColor: '#0b6258',
-      },
-      optionText: {
-        color: '#0b6258',
-        fontWeight: '500',
-        fontSize: 15,
-      },
-      selectedOptionText: {
-        color: 'white',
-        fontWeight: '700',
-        fontSize: 15,
-      },
-      buttonGroup: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginTop: 20,
-        gap: 10,
-      },
-      backButton: {
-        backgroundColor: 'transparent',
-        borderWidth: 1.5,
-        borderColor: '#0b6258',
-        borderRadius: 30,
-        paddingVertical: 14,
-        paddingHorizontal: 36,
-        flex: 1,
-        alignItems: 'center',
-      },
-      backButtonText: {
-        color: '#0b6258',
-        fontSize: 16,
-        fontWeight: '700',
-      },
-      nextButton: {
-        backgroundColor: '#0b6258',
-        borderRadius: 30,
-        paddingVertical: 14,
-        paddingHorizontal: 36,
-        flex: 1,
-        alignItems: 'center',
-      },
-      nextButtonDisabled: {
-        backgroundColor: '#b2dfd5',
-      },
-      nextButtonText: {
-        color: 'white',
-        fontSize: 18,
-        fontWeight: '700',
-        letterSpacing: 0.5,
-      },
+  safeArea: { flex: 1, backgroundColor: '#F4F7F6' },
+  container: { paddingHorizontal: 20, paddingBottom: 120, paddingTop: 10 },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 20, backgroundColor: '#F4F7F6' },
+  backButton: { width: 44, height: 44, borderRadius: 22, backgroundColor: '#FFFFFF', justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2, elevation: 3 },
+  backButtonText: { fontSize: 24, color: '#0B6258', fontWeight: 'bold' },
+  headerTitle: { fontFamily: 'IBMPlexSansThai-Bold', fontSize: 22, color: '#0B6258' },
+  totalScoreCircle: { width: 60, height: 60, borderRadius: 30, backgroundColor: '#0B6258', justifyContent: 'center', alignItems: 'center', elevation: 5, shadowColor: '#0B6258', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 4 },
+  totalScoreLabel: { fontFamily: 'IBMPlexSans-Regular', fontSize: 12, color: '#FFFFFF', opacity: 0.8 },
+  totalScoreValue: { fontFamily: 'IBMPlexSans-Bold', fontSize: 22, color: '#FFFFFF' },
+  screenDescription: {
+    fontFamily: 'IBMPlexSansThai-Regular',
+    fontSize: 16,
+    color: '#2C3E50',
+    textAlign: 'center',
+    marginBottom: 24,
+  },
+  optionCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 2,
+    borderColor: '#E0E6EB',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  selectedOptionCard: {
+    borderColor: '#0B6258',
+    backgroundColor: '#EAF7F5',
+  },
+  optionIcon: {
+    fontSize: 24,
+    marginRight: 16,
+  },
+  optionTextContainer: {
+    flex: 1,
+  },
+  optionTitle: {
+    fontFamily: 'IBMPlexSansThai-Bold',
+    fontSize: 16,
+    color: '#2C3E50',
+  },
+  optionDescription: {
+    fontFamily: 'IBMPlexSansThai-Regular',
+    fontSize: 14,
+    color: '#7F8C8D',
+    marginTop: 4,
+  },
+  selectedOptionText: {
+    color: '#0B6258',
+  },
+  radioCircle: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#E0E6EB',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 16,
+  },
+  radioCircleSelected: {
+    borderColor: '#0B6258',
+  },
+  radioInnerCircle: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: '#0B6258',
+  },
+  footer: { position: 'absolute', bottom: 0, left: 0, right: 0, padding: 20, paddingBottom: Platform.OS === 'ios' ? 30 : 20, backgroundColor: '#FFFFFF', borderTopWidth: 1, borderTopColor: '#E0E6EB' },
+  nextButton: { backgroundColor: '#0B6258', borderRadius: 12, paddingVertical: 16, alignItems: 'center', shadowColor: '#0B6258', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 5 },
+  nextButtonDisabled: { backgroundColor: '#B2DFD5', elevation: 0 },
+  nextButtonText: { color: 'white', fontSize: 18, fontFamily: 'IBMPlexSansThai-Bold' },
 });
 
 export default PatientPriorityScreen;

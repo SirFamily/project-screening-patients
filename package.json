@@ -15,6 +15,7 @@
     "expo": "~53.0.15",
     "expo-font": "^13.3.2",
     "expo-status-bar": "~2.2.3",
+    "lodash.merge": "^4.6.2",
     "react": "19.0.0",
     "react-native": "0.79.4",
     "react-native-animatable": "^1.4.0",

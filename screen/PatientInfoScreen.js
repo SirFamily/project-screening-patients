@@ -1,19 +1,18 @@
 import React, { useState } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
-  StatusBar
+  View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView,
+  KeyboardAvoidingView, Platform, StatusBar
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { usePatientContext } from '../context/PatientContext';
 import { useNavigation } from '@react-navigation/native';
 import * as Animatable from 'react-native-animatable';
+
+const wards = [
+  { label: 'ห้องฉุกเฉิน (Emergency)', value: 'AE', icon: '🚑' },
+  { label: 'วอร์ดผู้ป่วยทั่วไป (General Ward)', value: 'ward', icon: '🛌' },
+  { label: 'หอผู้ป่วยหนัก (ICU)', value: 'ICU', icon: '❤️‍🩹' },
+];
 
 const PatientInfoScreen = () => {
   const { updatePatientData } = usePatientContext();
@@ -24,12 +23,6 @@ const PatientInfoScreen = () => {
     lastName: '',
     hn: ''
   });
-
-  const wards = [
-    { label: 'ห้องฉุกเฉิน (Emergency)', value: 'AE' },
-    { label: 'วอร์ดผู้ป่วยทั่วไป (General Ward)', value: 'ward' },
-    { label: 'หอผู้ป่วยหนัก (ICU)', value: 'ICU' },
-  ];
 
   const handleNext = () => {
     updatePatientData({
@@ -43,124 +36,117 @@ const PatientInfoScreen = () => {
 
   const isFormValid = formData.ward && formData.firstName && formData.lastName && formData.hn;
 
+  const InputField = ({ label, value, onChangeText, placeholder, keyboardType = 'default' }) => (
+    <View style={styles.inputGroup}>
+        <Text style={styles.label}>{label}</Text>
+        <TextInput
+            style={styles.input}
+            placeholder={placeholder}
+            value={value}
+            onChangeText={onChangeText}
+            placeholderTextColor="#9DA8B7"
+            keyboardType={keyboardType}
+        />
+    </View>
+  );
+
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor="#F0F4F8" />
+      <StatusBar barStyle="dark-content" backgroundColor="#F4F7F6" />
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView contentContainerStyle={styles.container}>
           <Animatable.View animation="fadeInDown" duration={1000} style={styles.header}>
-            <View style={styles.logoContainer}>
-                <Text style={styles.logoIcon}>🏥</Text>
+            <View style={styles.headerIconContainer}>
+                <Text style={styles.headerIcon}>📋</Text>
             </View>
-            <Text style={styles.title}>กรอกข้อมูลผู้ป่วย</Text>
+            <Text style={styles.title}>ข้อมูลผู้ป่วย</Text>
             <Text style={styles.subtitle}>Patient Information</Text>
           </Animatable.View>
 
-          <Animatable.View animation="fadeInUp" duration={1000} delay={200} style={styles.card}>
-            <Text style={styles.label}>เลือกวอร์ด / Ward</Text>
-            <View style={styles.selectContainer}>
-              {wards.map((ward) => (
-                <TouchableOpacity
-                  key={ward.value}
-                  style={[
-                    styles.option,
-                    formData.ward === ward.value && styles.selectedOption
-                  ]}
-                  onPress={() => setFormData({ ...formData, ward: ward.value })}
-                >
-                  <Text style={formData.ward === ward.value ? styles.selectedOptionText : styles.optionText}>
-                    {ward.label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+          <Animatable.View animation="fadeInUp" duration={900} delay={200}>
+            <View style={styles.card}>
+                <Text style={styles.cardTitle}>เลือกวอร์ด / Ward</Text>
+                {wards.map((ward) => (
+                    <TouchableOpacity
+                        key={ward.value}
+                        style={[
+                            styles.optionCard,
+                            formData.ward === ward.value && styles.selectedOptionCard
+                        ]}
+                        onPress={() => setFormData({ ...formData, ward: ward.value })}
+                    >
+                        <Text style={styles.optionIcon}>{ward.icon}</Text>
+                        <Text style={[styles.optionText, formData.ward === ward.value && styles.selectedOptionText]}>
+                            {ward.label}
+                        </Text>
+                    </TouchableOpacity>
+                ))}
             </View>
 
-            <View style={styles.inputGroup}>
-                <Text style={styles.label}>ชื่อ (First Name)</Text>
-                <TextInput
-                    style={styles.input}
+            <View style={styles.card}>
+                <InputField 
+                    label="ชื่อ (First Name)" 
                     placeholder="เช่น สมชาย"
                     value={formData.firstName}
                     onChangeText={(text) => setFormData({ ...formData, firstName: text })}
-                    placeholderTextColor="#9DA8B7"
                 />
-            </View>
-
-            <View style={styles.inputGroup}>
-                <Text style={styles.label}>นามสกุล (Last Name)</Text>
-                <TextInput
-                    style={styles.input}
+                 <InputField 
+                    label="นามสกุล (Last Name)" 
                     placeholder="เช่น ใจดี"
                     value={formData.lastName}
                     onChangeText={(text) => setFormData({ ...formData, lastName: text })}
-                    placeholderTextColor="#9DA8B7"
+                />
+                 <InputField 
+                    label="หมายเลข HN (Hospital Number)"
+                    placeholder="กรอกหมายเลข HN"
+                    value={formData.hn}
+                    onChangeText={(text) => setFormData({ ...formData, hn: text })}
+                    keyboardType="numeric"
                 />
             </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>หมายเลข HN (Hospital Number)</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="กรอกหมายเลข HN"
-                value={formData.hn}
-                onChangeText={(text) => setFormData({ ...formData, hn: text })}
-                keyboardType="numeric"
-                placeholderTextColor="#9DA8B7"
-              />
-            </View>
           </Animatable.View>
 
-          <Animatable.View animation="fadeInUp" duration={1000} delay={400}>
-            <TouchableOpacity
-              style={[styles.nextButton, !isFormValid && styles.nextButtonDisabled]}
-              onPress={handleNext}
-              disabled={!isFormValid}
-            >
-              <Text style={styles.nextButtonText}>ต่อไป (Next)</Text>
-            </TouchableOpacity>
-          </Animatable.View>
         </ScrollView>
+        <Animatable.View animation="slideInUp" duration={500}>
+            <View style={styles.footer}>
+                <TouchableOpacity
+                style={[styles.nextButton, !isFormValid && styles.nextButtonDisabled]}
+                onPress={handleNext}
+                disabled={!isFormValid}
+                >
+                <Text style={styles.nextButtonText}>ต่อไป (Next)</Text>
+                </TouchableOpacity>
+            </View>
+        </Animatable.View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#eafaf7',
-  },
-  container: {
-    flexGrow: 1,
-    padding: 24,
+  safeArea: { flex: 1, backgroundColor: '#F4F7F6' },
+  container: { 
+    flexGrow: 1, 
+    paddingHorizontal: 24, 
+    paddingBottom: 120, // Space for the footer
   },
   header: {
     alignItems: 'center',
-    marginBottom: 32,
+    paddingTop: 20,
+    marginBottom: 24,
   },
-  logoContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+  headerIconContainer: {
+    width: 80, height: 80, borderRadius: 40,
     backgroundColor: '#FFFFFF',
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: 'center', alignItems: 'center',
     marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 5,
-    borderColor: '#0B6258',
-    borderWidth: 2,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1, shadowRadius: 10, elevation: 5,
   },
-  logoIcon: {
-    fontSize: 40,
-    color: '#0B6258',
-  },
+  headerIcon: { fontSize: 40 },
   title: {
     fontSize: 28,
     fontFamily: 'IBMPlexSansThai-Bold',
@@ -170,7 +156,7 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 18,
     fontFamily: 'IBMPlexSans-Regular',
-    color: '#0B6258',
+    color: '#2C3E50',
     textAlign: 'center',
     marginTop: 4,
     opacity: 0.8,
@@ -178,60 +164,68 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
-    padding: 24,
-    marginBottom: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  label: {
-    fontSize: 16,
-    fontFamily: 'IBMPlexSansThai-Regular',
-    color: '#0B6258',
-    marginBottom: 12,
-    fontWeight: '600',
-  },
-  selectContainer: {
+    padding: 20,
     marginBottom: 16,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05, shadowRadius: 5, elevation: 2,
   },
-  option: {
-    paddingVertical: 14,
-    paddingHorizontal: 18,
+  cardTitle: {
+    fontFamily: 'IBMPlexSansThai-Bold',
+    fontSize: 18, 
+    color: '#2C3E50',
+    marginBottom: 12,
+  },
+  optionCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
     borderWidth: 1.5,
-    borderColor: '#b2dfd5',
+    borderColor: '#E0E6EB',
     borderRadius: 12,
     marginBottom: 10,
-    backgroundColor: '#f6fffd',
+    backgroundColor: '#F9FAFB',
   },
-  selectedOption: {
+  selectedOptionCard: {
     backgroundColor: '#0B6258',
     borderColor: '#0B6258',
   },
+  optionIcon: { fontSize: 22, marginRight: 12 },
   optionText: {
     fontFamily: 'IBMPlexSansThai-Regular',
     fontSize: 16,
-    color: '#0B6258',
+    color: '#2C3E50',
     fontWeight: '500',
   },
   selectedOptionText: {
     fontFamily: 'IBMPlexSansThai-Bold',
-    fontSize: 16,
     color: '#FFFFFF',
   },
   inputGroup: {
     marginBottom: 16,
   },
+  label: {
+    fontSize: 16,
+    fontFamily: 'IBMPlexSansThai-SemiBold',
+    color: '#2C3E50',
+    marginBottom: 8,
+  },
   input: {
-    borderWidth: 1.5,
-    borderColor: '#b2dfd5',
-    borderRadius: 12,
-    padding: 14,
+    backgroundColor: '#F4F7F6',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#E0E6EB',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     fontSize: 16,
     fontFamily: 'IBMPlexSans-Regular',
-    backgroundColor: '#f6fffd',
-    color: '#0B6258',
+    color: '#2C3E50',
+  },
+  footer: {
+    padding: 20,
+    paddingBottom: Platform.OS === 'ios' ? 30 : 20,
+    backgroundColor: '#FFFFFF',
+    borderTopWidth: 1,
+    borderTopColor: '#E0E6EB',
   },
   nextButton: {
     backgroundColor: '#0B6258',
@@ -240,13 +234,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     shadowColor: '#0B6258',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 5,
+    shadowOpacity: 0.3, shadowRadius: 8, elevation: 5,
   },
   nextButtonDisabled: {
-    backgroundColor: '#b2dfd5',
+    backgroundColor: '#B2DFD5',
     elevation: 0,
+    shadowOpacity: 0,
   },
   nextButtonText: {
     color: 'white',

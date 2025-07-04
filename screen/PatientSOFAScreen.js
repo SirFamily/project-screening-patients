@@ -1,380 +1,332 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Switch, KeyboardAvoidingView, Platform } from 'react-native';
+import React, { useState, useMemo } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  Switch,
+  KeyboardAvoidingView,
+  Platform,
+  StatusBar
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { usePatientContext } from '../context/PatientContext';
 import { useNavigation } from '@react-navigation/native';
-import { Picker } from '@react-native-picker/picker';
+import * as Animatable from 'react-native-animatable';
+
+// Scoring Functions (no changes needed here)
+const getRespirationScore = (v, isVentilated) => {
+  const val = parseFloat(v);
+  if (isNaN(val)) return 0;
+  if (isVentilated) {
+    if (val < 100) return 4;
+    if (val < 200) return 3;
+  }
+  if (val < 300) return 2;
+  if (val < 400) return 1;
+  return 0;
+};
+const getPlateletScore = (v) => {
+  const val = parseFloat(v);
+  if (isNaN(val)) return 0;
+  if (val < 20) return 4;
+  if (val < 50) return 3;
+  if (val < 100) return 2;
+  if (val < 150) return 1;
+  return 0;
+};
+const getBilirubinScore = (v) => {
+  const val = parseFloat(v);
+  if (isNaN(val)) return 0;
+  if (val >= 12.0) return 4;
+  if (val >= 6.0) return 3;
+  if (val >= 2.0) return 2;
+  if (val >= 1.2) return 1;
+  return 0;
+};
+const getCnsScore = (v) => {
+  const val = parseInt(v, 10);
+  if (isNaN(val)) return 0;
+  if (val < 6) return 4;
+  if (val < 10) return 3;
+  if (val < 13) return 2;
+  if (val < 15) return 1;
+  return 0;
+};
+const getRenalScore = (v) => {
+  const val = parseFloat(v);
+  if (isNaN(val)) return 0;
+  if (val >= 5.0) return 4;
+  if (val >= 3.5) return 3;
+  if (val >= 2.0) return 2;
+  if (val >= 1.2) return 1;
+  return 0;
+};
+
+const cardiovascularOptions = [
+    { label: 'MAP ≥ 70', value: '0' },
+    { label: 'MAP < 70', value: '1' },
+    { label: 'Dopamine ≤ 5', value: '2' },
+    { label: 'Dopamine > 5', value: '3' },
+    { label: 'Dopamine > 15', value: '4' },
+];
+
+const ScoreInputCard = ({ icon, title, description, value, onChangeText, placeholder, score, children }) => (
+  <Animatable.View animation="fadeInUp" duration={800} style={styles.card}>
+    <View style={styles.cardHeader}>
+      <Text style={styles.cardIcon}>{icon}</Text>
+      <View>
+        <Text style={styles.cardTitle}>{title}</Text>
+        <Text style={styles.cardDescription}>{description}</Text>
+      </View>
+      <View style={styles.scoreBadge}>
+        <Text style={styles.scoreBadgeText}>{score}</Text>
+      </View>
+    </View>
+    <View style={styles.cardBody}>
+      {children ? children : (
+        <TextInput
+          style={styles.input}
+          placeholder={placeholder}
+          value={value}
+          onChangeText={onChangeText}
+          keyboardType="numeric"
+          placeholderTextColor="#9DA8B7"
+        />
+      )}
+    </View>
+  </Animatable.View>
+);
 
 const PatientSOFAScreen = () => {
   const { patientData, updatePatientData } = usePatientContext();
   const navigation = useNavigation();
   const [formData, setFormData] = useState({
-    respiration: '',
-    isVentilated: false,
-    platelets: '',
-    bilirubin: '',
-    cardiovascular: '',
-    cns: '',
-    renal: '',
+    respiration: '', isVentilated: false, platelets: '',
+    bilirubin: '', cardiovascular: '', cns: '', renal: '',
   });
 
-  const cardiovascularOptions = [
-    { label: 'MAP ≥ 70 mmHg', value: '0' },
-    { label: 'MAP < 70 mmHg', value: '1' },
-    { label: 'Dopamine ≤ 5 หรือ Dobutamine', value: '2' },
-    { label: 'Dopamine > 5 หรือ Epi/Norepi ≤ 0.1', value: '3' },
-    { label: 'Dopamine > 15 หรือ Epi/Norepi > 0.1', value: '4' },
-  ];
+  const scores = useMemo(() => ({
+    respiration: getRespirationScore(formData.respiration, formData.isVentilated),
+    platelets: getPlateletScore(formData.platelets),
+    bilirubin: getBilirubinScore(formData.bilirubin),
+    cardiovascular: parseInt(formData.cardiovascular || '0', 10),
+    cns: getCnsScore(formData.cns),
+    renal: getRenalScore(formData.renal),
+  }), [formData]);
 
-  const getRespirationScore = (value, isVentilated) => {
-    const val = parseFloat(value);
-    if (isNaN(val)) return 0;
-    if (isVentilated) {
-      if (val < 100) return 4;
-      if (val < 200) return 3;
-    }
-    if (val < 300) return 2;
-    if (val < 400) return 1;
-    return 0;
-  };
-
-  const getPlateletScore = (value) => {
-    const val = parseFloat(value);
-    if (isNaN(val)) return 0;
-    if (val < 20) return 4;
-    if (val < 50) return 3;
-    if (val < 100) return 2;
-    if (val < 150) return 1;
-    return 0;
-  };
-
-  const getBilirubinScore = (value) => {
-    const val = parseFloat(value);
-    if (isNaN(val)) return 0;
-    if (val >= 12.0) return 4;
-    if (val >= 6.0) return 3;
-    if (val >= 2.0) return 2;
-    if (val >= 1.2) return 1;
-    return 0;
-  };
-
-  const getCnsScore = (value) => {
-    const val = parseInt(value, 10);
-    if (isNaN(val)) return 0;
-    if (val < 6) return 4;
-    if (val < 10) return 3;
-    if (val < 13) return 2;
-    if (val < 15) return 1;
-    return 0;
-  };
-
-  const getRenalScore = (value) => {
-    const val = parseFloat(value);
-    if (isNaN(val)) return 0;
-    if (val >= 5.0) return 4;
-    if (val >= 3.5) return 3;
-    if (val >= 2.0) return 2;
-    if (val >= 1.2) return 1;
-    return 0;
-  };
+  const totalSofaScore = Object.values(scores).reduce((sum, score) => sum + score, 0);
 
   const handleNext = () => {
-    const respirationScore = getRespirationScore(formData.respiration, formData.isVentilated);
-    const plateletScore = getPlateletScore(formData.platelets);
-    const bilirubinScore = getBilirubinScore(formData.bilirubin);
-    const cardiovascularScore = parseInt(formData.cardiovascular || 0);
-    const cnsScore = getCnsScore(formData.cns);
-    const renalScore = getRenalScore(formData.renal);
-
-    const sofaScore =
-      respirationScore +
-      plateletScore +
-      bilirubinScore +
-      cardiovascularScore +
-      cnsScore +
-      renalScore;
-
     updatePatientData({
       assessment: { ...patientData.assessment, sofaValues: formData },
-      results: { ...patientData.results, sofaScore },
+      results: { ...patientData.results, sofaScore: totalSofaScore },
     });
-
     navigation.navigate('PatientPriority');
   };
 
-  const handleBack = () => {
-    navigation.goBack();
-  };
+  const isFormValid = Object.values(formData).every(val => val !== '' && val !== null);
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#eafaf7' }}>
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
-      >
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="dark-content" backgroundColor="#F4F7F6" />
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+            <Text style={styles.backButtonText}>‹</Text>
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>SOFA Score</Text>
+        <View style={styles.totalScoreCircle}>
+            <Text style={styles.totalScoreLabel}>Total</Text>
+            <Text style={styles.totalScoreValue}>{totalSofaScore}</Text>
+        </View>
+      </View>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ScrollView contentContainerStyle={styles.container}>
-          <View style={styles.card}>
-            <View style={styles.cardHeader}>
-              <Text style={styles.cardHeaderText}>📊 ประเมินคะแนน SOFA</Text>
-            </View>
-            <View style={styles.cardBody}>
-              <View style={styles.infoBox}>
-                <Text style={styles.infoText}>ℹ️ กรุณากรอกค่าทางการแพทย์เพื่อประเมินคะแนน SOFA</Text>
-              </View>
 
-              <Text style={styles.sectionTitle}>🫁 ประเมิน SOFA Score</Text>
-
-              {/* Respiration */}
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>ระบบหายใจ (PaO₂/FiO₂)</Text>
+          <ScoreInputCard icon="🫁" title="Respiration" description="PaO₂/FiO₂ ratio" score={scores.respiration}>
+            <View>
                 <TextInput
-                  style={styles.input}
-                  placeholder="เช่น 350"
-                  keyboardType="numeric"
-                  value={formData.respiration}
-                  onChangeText={text => setFormData({ ...formData, respiration: text })}
+                    style={styles.input}
+                    placeholder="เช่น 350"
+                    value={formData.respiration}
+                    onChangeText={text => setFormData({ ...formData, respiration: text })}
+                    keyboardType="numeric"
+                    placeholderTextColor="#9DA8B7"
                 />
-                <View style={styles.switchContainer}>
-                  <Text style={styles.switchLabel}>ผู้ป่วยใช้เครื่องช่วยหายใจ?</Text>
-                  <Switch
-                    trackColor={{ false: "#767577", true: "#81b0ff" }}
-                    thumbColor={formData.isVentilated ? "#0b6258" : "#f4f3f4"}
-                    onValueChange={() => setFormData(prev => ({ ...prev, isVentilated: !prev.isVentilated }))}
-                    value={formData.isVentilated}
-                  />
+                <View style={styles.switchRow}>
+                    <Text style={styles.switchLabel}>On mechanical ventilation?</Text>
+                    <Switch
+                        trackColor={{ false: "#E9E9EA", true: "#B2DFD5" }}
+                        thumbColor={formData.isVentilated ? "#0B6258" : "#f4f3f4"}
+                        onValueChange={() => setFormData(prev => ({ ...prev, isVentilated: !prev.isVentilated }))}
+                        value={formData.isVentilated}
+                    />
                 </View>
-              </View>
-
-              {/* Platelets */}
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>เกล็ดเลือด (Platelet x10³)</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="เช่น 150"
-                  keyboardType="numeric"
-                  value={formData.platelets}
-                  onChangeText={text => setFormData({ ...formData, platelets: text })}
-                />
-              </View>
-
-              {/* Bilirubin */}
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>ตับ (Bilirubin mg/dL)</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="เช่น 1.0"
-                  keyboardType="numeric"
-                  value={formData.bilirubin}
-                  onChangeText={text => setFormData({ ...formData, bilirubin: text })}
-                />
-              </View>
-
-              {/* Cardiovascular */}
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>ระบบไหลเวียนโลหิต (MAP/ยา)</Text>
-                <View style={{
-                  borderWidth: 1.5,
-                  borderColor: '#b2dfd5',
-                  borderRadius: 10,
-                  backgroundColor: '#f6fffd',
-                  marginTop: 2,
-                  overflow: 'hidden',
-                }}>
-                  <Picker
-                    selectedValue={formData.cardiovascular}
-                    onValueChange={value => setFormData({ ...formData, cardiovascular: value })}
-                    style={{ color: '#0b6258' }}
-                    dropdownIconColor="#0b6258"
-                  >
-                    <Picker.Item label="กรุณาเลือก..." value="" />
-                    {cardiovascularOptions.map(option => (
-                      <Picker.Item key={option.value} label={option.label} value={option.value} />
-                    ))}
-                  </Picker>
-                </View>
-              </View>
-
-              {/* CNS */}
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>ระบบประสาท (GCS)</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="3-15"
-                  keyboardType="numeric"
-                  value={formData.cns}
-                  onChangeText={text => setFormData({ ...formData, cns: text })}
-                />
-              </View>
-
-              {/* Renal */}
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>ไต (Creatinine mg/dL)</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="เช่น 1.1"
-                  keyboardType="numeric"
-                  value={formData.renal}
-                  onChangeText={text => setFormData({ ...formData, renal: text })}
-                />
-              </View>
-
-              <View style={styles.buttonGroup}>
-                <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-                  <Text style={styles.backButtonText}>← ย้อนกลับ</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.calculateButton} onPress={handleNext}>
-                  <Text style={styles.calculateButtonText}>ต่อไป →</Text>
-                </TouchableOpacity>
-              </View>
             </View>
-          </View>
+          </ScoreInputCard>
+
+          <ScoreInputCard icon="🩸" title="Coagulation" description="Platelets x10³/μL" value={formData.platelets} onChangeText={text => setFormData({ ...formData, platelets: text })} placeholder="เช่น 150" score={scores.platelets} />
+
+          <ScoreInputCard icon=" लीवर" title="Liver" description="Bilirubin mg/dL" value={formData.bilirubin} onChangeText={text => setFormData({ ...formData, bilirubin: text })} placeholder="เช่น 1.0" score={scores.bilirubin} />
+
+          <ScoreInputCard icon="❤️" title="Cardiovascular" description="Hypotension / Vasopressors" score={scores.cardiovascular}>
+            <View style={styles.optionsGrid}>
+                {cardiovascularOptions.map(opt => (
+                    <TouchableOpacity key={opt.value} style={[styles.optionChip, formData.cardiovascular === opt.value && styles.selectedOptionChip]} onPress={() => setFormData({ ...formData, cardiovascular: opt.value })}>
+                        <Text style={[styles.optionChipText, formData.cardiovascular === opt.value && styles.selectedOptionChipText]}>{opt.label}</Text>
+                    </TouchableOpacity>
+                ))}
+            </View>
+          </ScoreInputCard>
+
+          <ScoreInputCard icon="🧠" title="Central Nervous System" description="Glasgow Coma Scale (GCS)" value={formData.cns} onChangeText={text => setFormData({ ...formData, cns: text })} placeholder="3-15" score={scores.cns} />
+
+          <ScoreInputCard icon="երի किडनी" title="Renal" description="Creatinine mg/dL" value={formData.renal} onChangeText={text => setFormData({ ...formData, renal: text })} placeholder="เช่น 1.1" score={scores.renal} />
+
         </ScrollView>
       </KeyboardAvoidingView>
+      <Animatable.View animation="slideInUp" duration={500} style={styles.footer}>
+        <TouchableOpacity style={[styles.nextButton, !isFormValid && styles.nextButtonDisabled]} onPress={handleNext} disabled={!isFormValid}>
+          <Text style={styles.nextButtonText}>ประเมินผล (Calculate)</Text>
+        </TouchableOpacity>
+      </Animatable.View>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-    backgroundColor: '#eafaf7',
-    padding: 20,
-    paddingBottom: 60,
-  },
-  card: {
-    backgroundColor: 'white',
-    borderRadius: 18,
-    elevation: 6,
-    marginBottom: 25,
-    overflow: 'hidden',
-    shadowColor: '#0b6258',
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
-  },
-  cardHeader: {
-    backgroundColor: '#0b6258',
-    padding: 18,
-    borderTopLeftRadius: 18,
-    borderTopRightRadius: 18,
-  },
-  cardHeaderText: {
-    color: 'white',
-    fontSize: 19,
-    fontWeight: '700',
-    letterSpacing: 0.5,
-  },
-  cardBody: {
-    padding: 22,
-  },
-  infoBox: {
-    backgroundColor: '#b2dfd5',
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 20,
-  },
-  infoText: {
-    color: '#0b6258',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 15,
-    color: '#0b6258',
-  },
-  inputGroup: {
-    marginBottom: 18,
-  },
-  label: {
-    marginBottom: 8,
-    fontSize: 15,
-    color: '#0b6258',
-    fontWeight: '600',
-  },
-  input: {
-    borderWidth: 1.5,
-    borderColor: '#b2dfd5',
-    borderRadius: 10,
-    padding: 13,
-    fontSize: 16,
-    backgroundColor: '#f6fffd',
-    color: '#0b6258',
-    marginTop: 2,
-  },
-  switchContainer: {
+  safeArea: { flex: 1, backgroundColor: '#F4F7F6' },
+  container: { paddingHorizontal: 20, paddingBottom: 120 },
+  header: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 10,
-  },
-  switchLabel: {
-    fontSize: 15,
-    color: '#0b6258',
-    fontWeight: '600',
-  },
-  optionsContainer: {
-    marginTop: 5,
-  },
-  optionButton: {
-    padding: 13,
-    borderWidth: 1.5,
-    borderColor: '#b2dfd5',
-    borderRadius: 10,
-    marginBottom: 10,
-    backgroundColor: '#f6fffd',
-  },
-  selectedOption: {
-    backgroundColor: '#0b6258',
-    borderColor: '#0b6258',
-  },
-  optionText: {
-    color: '#0b6258',
-    fontWeight: '500',
-    fontSize: 15,
-  },
-  selectedOptionText: {
-    color: 'white',
-    fontWeight: '700',
-    fontSize: 15,
-  },
-  buttonGroup: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 20,
-    gap: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    backgroundColor: '#F4F7F6',
   },
   backButton: {
-    backgroundColor: 'transparent',
+    width: 44, height: 44,
+    borderRadius: 22,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1, shadowRadius: 2,
+    elevation: 3,
+  },
+  backButtonText: { fontSize: 24, color: '#0B6258', fontWeight: 'bold' },
+  headerTitle: {
+    fontFamily: 'IBMPlexSansThai-Bold',
+    fontSize: 22,
+    color: '#0B6258',
+  },
+  totalScoreCircle: {
+    width: 60, height: 60,
+    borderRadius: 30,
+    backgroundColor: '#0B6258',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 5,
+    shadowColor: '#0B6258',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3, shadowRadius: 4,
+  },
+  totalScoreLabel: { fontFamily: 'IBMPlexSans-Regular', fontSize: 12, color: '#FFFFFF', opacity: 0.8 },
+  totalScoreValue: { fontFamily: 'IBMPlexSans-Bold', fontSize: 22, color: '#FFFFFF' },
+  card: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05, shadowRadius: 5,
+    elevation: 2,
+    overflow: 'hidden',
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F4F8',
+  },
+  cardIcon: { fontSize: 24, marginRight: 12 },
+  cardTitle: { fontFamily: 'IBMPlexSans-Bold', fontSize: 17, color: '#2C3E50' },
+  cardDescription: { fontFamily: 'IBMPlexSans-Regular', fontSize: 13, color: '#7F8C8D' },
+  scoreBadge: {
+    marginLeft: 'auto',
+    width: 36, height: 36,
+    borderRadius: 18,
+    backgroundColor: '#EAF7F5',
+    justifyContent: 'center',
+    alignItems: 'center',
     borderWidth: 1.5,
-    borderColor: '#0b6258',
-    borderRadius: 30,
-    paddingVertical: 14,
-    paddingHorizontal: 36,
-    flex: 1,
-    alignItems: 'center',
+    borderColor: '#B2DFD5',
   },
-  backButtonText: {
-    color: '#0b6258',
+  scoreBadgeText: { color: '#0B6258', fontSize: 16, fontFamily: 'IBMPlexSans-Bold' },
+  cardBody: { padding: 16 },
+  input: {
+    backgroundColor: '#F4F7F6',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#E0E6EB',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     fontSize: 16,
-    fontWeight: '700',
+    fontFamily: 'IBMPlexSans-Regular',
+    color: '#2C3E50',
   },
-  calculateButton: {
-    backgroundColor: '#0b6258',
-    borderRadius: 30,
-    paddingVertical: 14,
-    paddingHorizontal: 36,
-    flex: 1,
+  switchRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
+    marginTop: 16,
   },
-  calculateButtonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: '700',
-    letterSpacing: 0.5,
+  switchLabel: { fontFamily: 'IBMPlexSansThai-Regular', fontSize: 15, color: '#2C3E50' },
+  optionsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
   },
+  optionChip: {
+    width: '48%',
+    paddingVertical: 12,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: '#E0E6EB',
+    backgroundColor: '#F4F7F6',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  selectedOptionChip: { backgroundColor: '#0B6258', borderColor: '#0B6258' },
+  optionChipText: { color: '#2C3E50', fontFamily: 'IBMPlexSansThai-Regular', fontSize: 13 },
+  selectedOptionChipText: { color: '#FFFFFF', fontFamily: 'IBMPlexSansThai-SemiBold' },
+  footer: {
+    position: 'absolute',
+    bottom: 0, left: 0, right: 0,
+    padding: 20,
+    paddingBottom: 30, // For safe area
+    backgroundColor: '#FFFFFF',
+    borderTopWidth: 1,
+    borderTopColor: '#E0E6EB',
+  },
+  nextButton: {
+    backgroundColor: '#0B6258',
+    borderRadius: 12,
+    paddingVertical: 16,
+    alignItems: 'center',
+    shadowColor: '#0B6258',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3, shadowRadius: 8,
+    elevation: 5,
+  },
+  nextButtonDisabled: { backgroundColor: '#B2DFD5', elevation: 0 },
+  nextButtonText: { color: 'white', fontSize: 18, fontFamily: 'IBMPlexSansThai-Bold' },
 });
 
 export default PatientSOFAScreen;
