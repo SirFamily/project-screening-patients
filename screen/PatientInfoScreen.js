@@ -23,11 +23,10 @@ const PatientInfoScreen = () => {
 
   const handleNext = () => {
     updatePatientData({
-      ward: formData.ward,
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      name: `${formData.firstName} ${formData.lastName}`,
-      hn: formData.hn
+      info: {
+        ...formData,
+        name: `${formData.firstName} ${formData.lastName}`
+      }
     });
     navigation.navigate('AssessmentSelection');
   };

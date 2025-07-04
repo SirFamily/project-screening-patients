@@ -6,7 +6,7 @@ import { usePatientContext } from '../context/PatientContext';
 import { useNavigation } from '@react-navigation/native';
 
 const PatientSOFAScreen = () => {
-  const { updatePatientData } = usePatientContext();
+  const { patientData, updatePatientData } = usePatientContext();
   const navigation = useNavigation();
   const [formData, setFormData] = useState({
     respiration: '',
@@ -95,8 +95,8 @@ const PatientSOFAScreen = () => {
       renalScore;
 
     updatePatientData({
-      sofaScore,
-      sofaValues: formData, // Save raw values for reference
+        assessment: { ...patientData.assessment, sofaValues: formData },
+        results: { ...patientData.results, sofaScore },
     });
 
     navigation.navigate('PatientPriority');

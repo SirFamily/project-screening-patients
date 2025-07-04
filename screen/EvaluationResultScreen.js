@@ -10,17 +10,20 @@ const EvaluationResultScreen = () => {
   const navigation = useNavigation();
 
   const { 
-    name, hn, ward, assessmentType, 
-    sofaScore, apacheScore, 
-    priorityRehScore, 
-    cciScore, cciRehScore, 
-    totalRehScore, riskLevel
+    info: { name, hn, ward }, 
+    assessment: { type: assessmentType },
+    results: { 
+      sofaScore, apacheScore, 
+      priorityRehScore, 
+      cciScore, cciRehScore, 
+      totalRehScore, riskLevel 
+    }
   } = patientData;
 
   const assessmentScore = assessmentType === 'SOFA' ? sofaScore : apacheScore;
 
   const handleNewPatient = () => {
-    // Optionally clear patient data here
+    // Here you might want to call resetPatientData()
     navigation.navigate('PatientInfo');
   };
 

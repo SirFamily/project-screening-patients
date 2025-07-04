@@ -6,11 +6,11 @@ import { usePatientContext } from '../context/PatientContext';
 import { useNavigation } from '@react-navigation/native';
 
 const AssessmentSelectionScreen = () => {
-  const { updatePatientData } = usePatientContext();
+  const { patientData, updatePatientData } = usePatientContext();
   const navigation = useNavigation();
 
   const handleSelectAssessment = (type) => {
-    updatePatientData({ assessmentType: type });
+    updatePatientData({ assessment: { ...patientData.assessment, type: type } });
     if (type === 'SOFA') {
       navigation.navigate('PatientSOFA');
     } else {

@@ -41,18 +41,18 @@ const PatientCCIScreen = () => {
   };
 
   const getAssessmentRehScore = () => {
-    const { assessmentType, sofaScore, apacheScore } = patientData;
-    if (assessmentType === 'SOFA') {
-        if (sofaScore <= 6) return 2;
-        if (sofaScore <= 9) return 3;
-        if (sofaScore <= 12) return 4;
-        if (sofaScore <= 15) return 2;
+    const { assessment, results } = patientData;
+    if (assessment.type === 'SOFA') {
+        if (results.sofaScore <= 6) return 2;
+        if (results.sofaScore <= 9) return 3;
+        if (results.sofaScore <= 12) return 4;
+        if (results.sofaScore <= 15) return 2;
         return 0; // > 15
     } else { // APACHE II
-        if (apacheScore <= 9) return 2;
-        if (apacheScore <= 14) return 3;
-        if (apacheScore <= 19) return 4;
-        if (apacheScore <= 24) return 2;
+        if (results.apacheScore <= 9) return 2;
+        if (results.apacheScore <= 14) return 3;
+        if (results.apacheScore <= 19) return 4;
+        if (results.apacheScore <= 24) return 2;
         return 0; // > 24
     }
   };
@@ -61,7 +61,7 @@ const PatientCCIScreen = () => {
     const cciScore = calculateCciScore();
     const cciRehScore = getCciRehScore(cciScore);
     const assessmentRehScore = getAssessmentRehScore();
-    const priorityRehScore = patientData.priorityRehScore || 0;
+    const priorityRehScore = patientData.priority.rehScore || 0;
 
     const totalRehScore = cciRehScore + assessmentRehScore + priorityRehScore;
 
@@ -70,13 +70,17 @@ const PatientCCIScreen = () => {
     else if (totalRehScore >= 5) riskLevel = "รายงานแพทย์พิจารณาขอเตียง ICU";
     else riskLevel = "รายงานแพทย์พิจารณาขอเตียง ICU"; // 1-4
 
-
     updatePatientData({
-      cciScore,
-      cciRehScore,
-      totalRehScore,
-      riskLevel,
-      comorbidities, // Save for reference
+      cci: { comorbidities },
+      results: {
+        ...patientData.results,
+        cciScore,
+        cciRehScore,
+        assessmentRehScore, // Make sure this is passed
+        priorityRehScore, // Make sure this is passed
+        totalRehScore,
+        riskLevel,
+      },
     });
 
     navigation.navigate('EvaluationResult');

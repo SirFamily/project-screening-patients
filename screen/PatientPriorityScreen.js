@@ -19,7 +19,9 @@ const PatientPriorityScreen = () => {
   ];
 
   const handleNext = () => {
-    updatePatientData({ priorityRehScore: parseInt(priority || 0) });
+    updatePatientData({
+        priority: { rehScore: parseInt(priority || 0) }
+    });
     navigation.navigate('PatientCCI');
   };
 

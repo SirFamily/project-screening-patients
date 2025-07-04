@@ -1,43 +1,61 @@
-// src/context/PatientContext.js
+
 import React, { createContext, useState, useContext } from 'react';
 
 const PatientContext = createContext();
 
-export const PatientProvider = ({ children }) => {
-  const [patientData, setPatientData] = useState({
+const initialState = {
+  info: {
     firstName: "",
     lastName: "",
-    name: "", // เก็บไว้เผื่อใช้ย้อนหลัง
     hn: "",
     ward: "",
-    assessmentType: "",
+  },
+  assessment: {
+    type: "", // 'SOFA' or 'APACHE'
+    sofaValues: { // Raw input values from the form
+        respiration: '',
+        isVentilated: false,
+        platelets: '',
+        bilirubin: '',
+        cardiovascular: '',
+        cns: '',
+        renal: '',
+    },
+    apacheValues: { // Raw input values from the form
+        temperature: '', map: '', hr: '', rr: '',
+        fio2: '', oxygenationValue: '', acidBaseMode: 'ph', acidBaseValue: '',
+        sodium: '', potassium: '', creatinine: '', isArf: false, hematocrit: '', wbc: '', gcs: '', age: '',
+        chronicHealthStatus: 'none',
+    },
+  },
+  priority: {
+    rehScore: 0,
+  },
+  cci: {
+    comorbidities: {},
+  },
+  results: {
     sofaScore: 0,
     apacheScore: 0,
-    priorityScore: 0,
+    assessmentRehScore: 0,
+    priorityRehScore: 0,
     cciScore: 0,
-    totalScore: 0,
-    riskLevel: ""
-  });
+    cciRehScore: 0,
+    totalRehScore: 0,
+    riskLevel: "",
+  }
+};
+
+export const PatientProvider = ({ children }) => {
+  const [patientData, setPatientData] = useState(initialState);
 
   const updatePatientData = (newData) => {
+    // A simple merge for the first level of keys
     setPatientData(prev => ({ ...prev, ...newData }));
   };
 
   const resetPatientData = () => {
-    setPatientData({
-      firstName: "",
-      lastName: "",
-      name: "",
-      hn: "",
-      ward: "",
-      assessmentType: "",
-      sofaScore: 0,
-      apacheScore: 0,
-      priorityScore: 0,
-      cciScore: 0,
-      totalScore: 0,
-      riskLevel: ""
-    });
+    setPatientData(initialState);
   };
 
   return (
