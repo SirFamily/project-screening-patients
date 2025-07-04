@@ -14,6 +14,20 @@ const wards = [
   { label: 'หอผู้ป่วยหนัก (ICU)', value: 'ICU', icon: '❤️‍🩹' },
 ];
 
+const InputField = ({ label, value, onChangeText, placeholder, keyboardType = 'default' }) => (
+    <View style={styles.inputGroup}>
+        <Text style={styles.label}>{label}</Text>
+        <TextInput
+            style={styles.input}
+            placeholder={placeholder}
+            value={value}
+            onChangeText={onChangeText}
+            placeholderTextColor="#9DA8B7"
+            keyboardType={keyboardType}
+        />
+    </View>
+  );
+
 const PatientInfoScreen = () => {
   const { updatePatientData } = usePatientContext();
   const navigation = useNavigation();
@@ -35,20 +49,6 @@ const PatientInfoScreen = () => {
   };
 
   const isFormValid = formData.ward && formData.firstName && formData.lastName && formData.hn;
-
-  const InputField = ({ label, value, onChangeText, placeholder, keyboardType = 'default' }) => (
-    <View style={styles.inputGroup}>
-        <Text style={styles.label}>{label}</Text>
-        <TextInput
-            style={styles.input}
-            placeholder={placeholder}
-            value={value}
-            onChangeText={onChangeText}
-            placeholderTextColor="#9DA8B7"
-            keyboardType={keyboardType}
-        />
-    </View>
-  );
 
   return (
     <SafeAreaView style={styles.safeArea}>

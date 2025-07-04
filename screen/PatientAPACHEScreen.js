@@ -228,13 +228,14 @@ const PatientAPACHEScreen = () => {
           </ScoreInputCard>
 
         </ScrollView>
+        <Animatable.View animation="slideInUp" duration={500}>
+            <View style={styles.footer}>
+                <TouchableOpacity style={[styles.nextButton, !isFormValid && styles.nextButtonDisabled]} onPress={handleNext} disabled={!isFormValid}>
+                    <Text style={styles.nextButtonText}>ประเมินผล (Calculate)</Text>
+                </TouchableOpacity>
+            </View>
+        </Animatable.View>
       </KeyboardAvoidingView>
-
-      <Animatable.View animation="slideInUp" duration={500} style={styles.footer}>
-        <TouchableOpacity style={[styles.nextButton, !isFormValid && styles.nextButtonDisabled]} onPress={handleNext} disabled={!isFormValid}>
-          <Text style={styles.nextButtonText}>ประเมินผล (Calculate)</Text>
-        </TouchableOpacity>
-      </Animatable.View>
     </SafeAreaView>
   );
 };

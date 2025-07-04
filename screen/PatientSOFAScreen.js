@@ -186,12 +186,14 @@ const PatientSOFAScreen = () => {
           <ScoreInputCard icon="երի किडनी" title="Renal" description="Creatinine mg/dL" value={formData.renal} onChangeText={text => setFormData({ ...formData, renal: text })} placeholder="เช่น 1.1" score={scores.renal} />
 
         </ScrollView>
+      <Animatable.View animation="slideInUp" duration={500}>
+            <View style={styles.footer}>
+                <TouchableOpacity style={[styles.nextButton, !isFormValid && styles.nextButtonDisabled]} onPress={handleNext} disabled={!isFormValid}>
+                    <Text style={styles.nextButtonText}>ประเมินผล (Calculate)</Text>
+                </TouchableOpacity>
+            </View>
+        </Animatable.View>
       </KeyboardAvoidingView>
-      <Animatable.View animation="slideInUp" duration={500} style={styles.footer}>
-        <TouchableOpacity style={[styles.nextButton, !isFormValid && styles.nextButtonDisabled]} onPress={handleNext} disabled={!isFormValid}>
-          <Text style={styles.nextButtonText}>ประเมินผล (Calculate)</Text>
-        </TouchableOpacity>
-      </Animatable.View>
     </SafeAreaView>
   );
 };
