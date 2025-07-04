@@ -12,14 +12,14 @@ const PatientPriorityScreen = () => {
 
   const priorityOptions = [
     { label: '-- กรุณาเลือก --', value: '' },
-    { label: 'ระดับ 1: ผู้ป่วยวิกฤต ต้องอยู่ใน ICU', value: '4' },
-    { label: 'ระดับ 2: ผู้ป่วยที่ต้องการเฝ้าระวังอย่างใกล้ชิด', value: '3' },
-    { label: 'ระดับ 3: ผู้ป่วยวิกฤตที่มีโอกาสหายยาก', value: '2' },
-    { label: 'ระดับ 4: ผู้ป่วยอาการคงที่ ไม่จำเป็นต้องอยู่ใน ICU', value: '0' },
+    { label: 'Priority 1: วิกฤต, สัญญาณชีพไม่คงที่, ต้องการการดูแลใกล้ชิดใน ICU, โอกาสรอด >50%', value: '4' },
+    { label: 'Priority 2: ต้องการเฝ้าระวังใกล้ชิด (เช่น เสี่ยงต่อภาวะหายใจล้มเหลว)', value: '3' },
+    { label: 'Priority 3: วิกฤต, แต่โอกาสหายจากโรคยาก, อวัยวะล้มเหลวหลายระบบ, โอกาสรอด <50%', value: '2' },
+    { label: 'Priority 4: อาการคงที่, ไม่จำเป็นต้องอยู่ ICU (เช่น ผู้ป่วยมะเร็งระยะสุดท้าย)', value: '0' },
   ];
 
   const handleNext = () => {
-    updatePatientData({ priorityScore: parseInt(priority || 0) });
+    updatePatientData({ priorityRehScore: parseInt(priority || 0) });
     navigation.navigate('PatientCCI');
   };
 

@@ -9,6 +9,7 @@ import PatientSOFAScreen from '../screen/PatientSOFAScreen';
 import PatientAPACHEScreen from '../screen/PatientAPACHEScreen';
 import PatientPriorityScreen from '../screen/PatientPriorityScreen';
 import PatientCCIScreen from '../screen/PatientCCIScreen';
+import EvaluationResultScreen from '../screen/EvaluationResultScreen';
 
 
 const Stack = createNativeStackNavigator();
@@ -27,6 +28,7 @@ export default function AppNavigator() {
             <Stack.Screen name="PatientAPACHE" component={PatientAPACHEScreen} />
             <Stack.Screen name="PatientPriority" component={PatientPriorityScreen} />
             <Stack.Screen name="PatientCCI" component={PatientCCIScreen} />
+            <Stack.Screen name="EvaluationResult" component={EvaluationResultScreen} />
         </Stack.Navigator>
     );
 }
