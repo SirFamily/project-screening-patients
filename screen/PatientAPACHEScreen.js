@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Switch } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Switch, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { usePatientContext } from '../context/PatientContext';
 import { useNavigation } from '@react-navigation/native';
@@ -164,65 +163,71 @@ const PatientAPACHEScreen = () => {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#eafaf7' }}>
-      <ScrollView contentContainerStyle={styles.container}>
-        <View style={styles.card}>
-          <View style={styles.cardHeader}>
-            <Text style={styles.cardHeaderText}>📊 ประเมินคะแนน APACHE II</Text>
-          </View>
-          <View style={styles.cardBody}>
-            <Text style={styles.sectionTitle}>Physiology Variables</Text>
-            {renderInput('Temperature (°C)', 'temperature', 'e.g., 37.0')}
-            {renderInput('Mean Arterial Pressure (mmHg)', 'map', 'e.g., 90')}
-            {renderInput('Heart Rate (/min)', 'hr', 'e.g., 80')}
-            {renderInput('Respiratory Rate (/min)', 'rr', 'e.g., 16')}
-
-            <Text style={styles.subSectionTitle}>Oxygenation</Text>
-            {renderInput('FiO₂', 'fio2', 'e.g., 0.4 (as a decimal)')}
-            {renderInput('PaO₂ or A-aDO₂ (mmHg)', 'oxygenationValue', 'Enter value based on FiO₂')}
-            <Text style={styles.helperText}>* กรอก PaO₂ ถ้า FiO₂ &lt; 0.5, หรือกรอก A-aDO₂ ถ้า FiO₂ ≥ 0.5</Text>
-
-            <Text style={styles.subSectionTitle}>Acid-Base Balance</Text>
-            <Picker
-              selectedValue={formData.acidBaseMode}
-              onValueChange={(itemValue) => setFormData(prev => ({ ...prev, acidBaseMode: itemValue }))}>
-              <Picker.Item label="Arterial pH" value="ph" />
-              <Picker.Item label="Serum HCO₃ (mEq/l)" value="hco3" />
-            </Picker>
-            {renderInput(formData.acidBaseMode === 'ph' ? 'Arterial pH' : 'Serum HCO₃', 'acidBaseValue', 'Enter value')}
-
-            {renderInput('Serum Sodium (mEq/l)', 'sodium', 'e.g., 140')}
-            {renderInput('Serum Potassium (mEq/l)', 'potassium', 'e.g., 4.0')}
-            {renderInput('Serum Creatinine (mg/dl)', 'creatinine', 'e.g., 1.0')}
-            <View style={styles.switchContainer}>
-              <Text style={styles.label}>Acute Renal Failure?</Text>
-              <Switch value={formData.isArf} onValueChange={val => setFormData(prev => ({ ...prev, isArf: val }))} />
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+      >
+        <ScrollView contentContainerStyle={styles.container}>
+          <View style={styles.card}>
+            <View style={styles.cardHeader}>
+              <Text style={styles.cardHeaderText}>📊 ประเมินคะแนน APACHE II</Text>
             </View>
-            {renderInput('Hematocrit (%)', 'hematocrit', 'e.g., 45')}
-            {renderInput('White Blood Count (x1000/mm³)', 'wbc', 'e.g., 8.0')}
-            {renderInput('Glasgow Coma Score', 'gcs', '3-15')}
+            <View style={styles.cardBody}>
+              <Text style={styles.sectionTitle}>Physiology Variables</Text>
+              {renderInput('Temperature (°C)', 'temperature', 'e.g., 37.0')}
+              {renderInput('Mean Arterial Pressure (mmHg)', 'map', 'e.g., 90')}
+              {renderInput('Heart Rate (/min)', 'hr', 'e.g., 80')}
+              {renderInput('Respiratory Rate (/min)', 'rr', 'e.g., 16')}
 
-            <Text style={styles.sectionTitle}>Age & Chronic Health</Text>
-            {renderInput('Age (years)', 'age', 'e.g., 55')}
-            <Text style={styles.label}>Chronic Health Status</Text>
-            <Picker
-              selectedValue={formData.chronicHealthStatus}
-              onValueChange={(itemValue) => setFormData(prev => ({ ...prev, chronicHealthStatus: itemValue }))}>
-              <Picker.Item label="None" value="none" />
-              <Picker.Item label="Non-operative or Emergency Post-operative" value="non_op_or_emergency" />
-              <Picker.Item label="Elective Post-operative" value="elective_post_op" />
-            </Picker>
+              <Text style={styles.subSectionTitle}>Oxygenation</Text>
+              {renderInput('FiO₂', 'fio2', 'e.g., 0.4 (as a decimal)')}
+              {renderInput('PaO₂ or A-aDO₂ (mmHg)', 'oxygenationValue', 'Enter value based on FiO₂')}
+              <Text style={styles.helperText}>* กรอก PaO₂ ถ้า FiO₂ &lt; 0.5, หรือกรอก A-aDO₂ ถ้า FiO₂ ≥ 0.5</Text>
 
-            <View style={styles.buttonGroup}>
-              <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-                <Text style={styles.backButtonText}>← ย้อนกลับ</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.calculateButton} onPress={handleNext}>
-                <Text style={styles.calculateButtonText}>ต่อไป →</Text>
-              </TouchableOpacity>
+              <Text style={styles.subSectionTitle}>Acid-Base Balance</Text>
+              <Picker
+                selectedValue={formData.acidBaseMode}
+                onValueChange={(itemValue) => setFormData(prev => ({ ...prev, acidBaseMode: itemValue }))}>
+                <Picker.Item label="Arterial pH" value="ph" />
+                <Picker.Item label="Serum HCO₃ (mEq/l)" value="hco3" />
+              </Picker>
+              {renderInput(formData.acidBaseMode === 'ph' ? 'Arterial pH' : 'Serum HCO₃', 'acidBaseValue', 'Enter value')}
+
+              {renderInput('Serum Sodium (mEq/l)', 'sodium', 'e.g., 140')}
+              {renderInput('Serum Potassium (mEq/l)', 'potassium', 'e.g., 4.0')}
+              {renderInput('Serum Creatinine (mg/dl)', 'creatinine', 'e.g., 1.0')}
+              <View style={styles.switchContainer}>
+                <Text style={styles.label}>Acute Renal Failure?</Text>
+                <Switch value={formData.isArf} onValueChange={val => setFormData(prev => ({ ...prev, isArf: val }))} />
+              </View>
+              {renderInput('Hematocrit (%)', 'hematocrit', 'e.g., 45')}
+              {renderInput('White Blood Count (x1000/mm³)', 'wbc', 'e.g., 8.0')}
+              {renderInput('Glasgow Coma Score', 'gcs', '3-15')}
+
+              <Text style={styles.sectionTitle}>Age & Chronic Health</Text>
+              {renderInput('Age (years)', 'age', 'e.g., 55')}
+              <Text style={styles.label}>Chronic Health Status</Text>
+              <Picker
+                selectedValue={formData.chronicHealthStatus}
+                onValueChange={(itemValue) => setFormData(prev => ({ ...prev, chronicHealthStatus: itemValue }))}>
+                <Picker.Item label="None" value="none" />
+                <Picker.Item label="Non-operative or Emergency Post-operative" value="non_op_or_emergency" />
+                <Picker.Item label="Elective Post-operative" value="elective_post_op" />
+              </Picker>
+
+              <View style={styles.buttonGroup}>
+                <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+                  <Text style={styles.backButtonText}>← ย้อนกลับ</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.calculateButton} onPress={handleNext}>
+                  <Text style={styles.calculateButtonText}>ต่อไป →</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
