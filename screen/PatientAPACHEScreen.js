@@ -204,8 +204,8 @@ const PatientAPACHEScreen = () => {
 
           <ScoreInputCard icon="🧂" title="Serum Sodium" description="mEq/L" score={scores.sodium}>{renderInput('sodium', 'e.g., 140')}</ScoreInputCard>
           <ScoreInputCard icon="🍌" title="Serum Potassium" description="mEq/L" score={scores.potassium}>{renderInput('potassium', 'e.g., 4.0')}</ScoreInputCard>
-          
-          <ScoreInputCard icon="երի किडनी" title="Serum Creatinine" description="mg/dL" score={scores.creatinine}>
+
+          <ScoreInputCard icon="🧪" title="Serum Creatinine" description="mg/dL" score={scores.creatinine}>
             {renderInput('creatinine', 'e.g., 1.1')}
             <View style={styles.switchRow}>
               <Text style={styles.switchLabel}>Acute Renal Failure?</Text>
