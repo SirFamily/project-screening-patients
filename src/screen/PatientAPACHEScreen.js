@@ -182,8 +182,8 @@ const PatientAPACHEScreen = () => {
 
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ScrollView contentContainerStyle={styles.container}>
-          <ScoreInputCard icon="🌡️" title="Temperature" description="(°C)" score={scores.temperature}>{renderInput('temperature', 'e.g., 37.0')}</ScoreInputCard>
-          <ScoreInputCard icon="📈" title="Mean Arterial Pressure MAP" description="(mmHg)" score={scores.map}>{renderInput('map', 'e.g., 90')}</ScoreInputCard>
+          <ScoreInputCard icon="🌡️" title="Temperature" description="°C" score={scores.temperature}>{renderInput('temperature', 'e.g., 37.0')}</ScoreInputCard>
+          <ScoreInputCard icon="📈" title="Mean Arterial Pressure MAP" description="mmHg" score={scores.map}>{renderInput('map', 'e.g., 90')}</ScoreInputCard>
           <ScoreInputCard icon="❤️" title="Heart Rate" description="per minute" score={scores.hr}>{renderInput('hr', 'e.g., 80')}</ScoreInputCard>
           <ScoreInputCard icon="🫁" title="Respiratory Rate" description="per minute" score={scores.rr}>{renderInput('rr', 'e.g., 16')}</ScoreInputCard>
 
@@ -199,7 +199,7 @@ const PatientAPACHEScreen = () => {
                 <TouchableOpacity style={[styles.chip, formData.acidBaseMode === 'ph' && styles.chipSelected]} onPress={() => setFormData(p => ({...p, acidBaseMode: 'ph'}))}><Text style={[styles.chipText, formData.acidBaseMode === 'ph' && styles.chipTextSelected]}>Arterial pH</Text></TouchableOpacity>
                 <TouchableOpacity style={[styles.chip, formData.acidBaseMode === 'hco3' && styles.chipSelected]} onPress={() => setFormData(p => ({...p, acidBaseMode: 'hco3'}))}><Text style={[styles.chipText, formData.acidBaseMode === 'hco3' && styles.chipTextSelected]}>Serum HCO₃</Text></TouchableOpacity>
             </View>
-            {renderInput('acidBaseValue', formData.acidBaseMode === 'ph' ? 'pH value' : 'mEq/L')}
+            {renderInput('acidBaseValue', formData.acidBaseMode === 'ph' ? 'pH value (e,g.,0 - 14)' : 'mEq/L')}
           </ScoreInputCard>
 
           <ScoreInputCard icon="🧂" title="Serum Sodium" description="mEq/L" score={scores.sodium}>{renderInput('sodium', 'e.g., 140')}</ScoreInputCard>
@@ -213,7 +213,7 @@ const PatientAPACHEScreen = () => {
             </View>
           </ScoreInputCard>
 
-          <ScoreInputCard icon="🩸" title="Hematocrit" description="(%)" score={scores.hematocrit}>{renderInput('hematocrit', 'e.g., 45')}</ScoreInputCard>
+          <ScoreInputCard icon="🩸" title="Hematocrit" description="%" score={scores.hematocrit}>{renderInput('hematocrit', 'e.g., 45')}</ScoreInputCard>
           <ScoreInputCard icon="🦠" title="White Blood Count" description="x1000/mm³" score={scores.wbc}>{renderInput('wbc', 'e.g., 8.0')}</ScoreInputCard>
           <ScoreInputCard icon="🧠" title="Glasgow Coma Score" description="15 - GCS Score" score={scores.gcs}>{renderInput('gcs', '3-15')}</ScoreInputCard>
           
