@@ -10,6 +10,8 @@ const initialState = {
     hn: "",
     ward: "",
     name: "",
+    age: "",
+    gender: "",
   },
   assessment: {
     type: "", // 'SOFA' or 'APACHE'
