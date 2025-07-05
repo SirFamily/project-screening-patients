@@ -3,6 +3,7 @@ import * as React from 'react';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import useBackButtonExitHandler from '../hooks/useBackButtonExitHandler';
+import ExitConfirmationModal from '../components/ExitConfirmationModal';
 import PatientInfoScreen from '../screen/PatientInfoScreen';
 import AssessmentSelectionScreen from '../screen/AssessmentSelectionScreen';
 
@@ -17,10 +18,11 @@ const Stack = createNativeStackNavigator();
 
 export default function AppNavigator() {
     const navigation = useNavigation();
-    useBackButtonExitHandler(navigation);
+    const { showExitModal, handleConfirmExit, handleCancelExit } = useBackButtonExitHandler(navigation);
 
     return (
-        <Stack.Navigator
+        <>
+            <Stack.Navigator
             initialRouteName="PatientInfo"
             screenOptions={{
                 headerShown: false,
@@ -34,5 +36,11 @@ export default function AppNavigator() {
             <Stack.Screen name="PatientCCI" component={PatientCCIScreen} />
             <Stack.Screen name="EvaluationResult" component={EvaluationResultScreen} />
         </Stack.Navigator>
+            <ExitConfirmationModal
+                isVisible={showExitModal}
+                onConfirm={handleConfirmExit}
+                onCancel={handleCancelExit}
+            />
+        </>
     );
 }
