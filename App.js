@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import AppNavigator from './navigation/AppNavigator';
-import { PatientProvider } from './context/PatientContext';
+import AppNavigator from './src/navigation/AppNavigator';
+import { PatientProvider } from './src/context/PatientContext';
 import { StatusBar, Text, View, ActivityIndicator, StyleSheet } from 'react-native';
 import * as Font from 'expo-font';
 
