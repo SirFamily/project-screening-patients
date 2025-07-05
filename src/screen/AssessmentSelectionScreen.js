@@ -31,13 +31,18 @@ const AssessmentSelectionScreen = () => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" backgroundColor="#0B6258" />
-      <ScrollView contentContainerStyle={styles.container}>
-        <Animatable.View animation="fadeInDown" duration={1000} style={styles.header}>
+      <StatusBar barStyle="dark-content" backgroundColor="#F4F7F6" />
+      <View style={styles.header}>
+        <TouchableOpacity onPress={handleBack} style={styles.backButton}>
+          <Text style={styles.backButtonText}>‹</Text>
+        </TouchableOpacity>
+        <Animatable.View animation="fadeInDown" duration={1000} style={styles.headerContent}>
           <Text style={styles.title}>เลือกแบบประเมิน</Text>
           <Text style={styles.subtitle}>Assessment Selection</Text>
         </Animatable.View>
+      </View>
 
+      <ScrollView contentContainerStyle={styles.container}>
         <Animatable.View animation="fadeInUp" duration={1000} delay={200}>
           <TouchableOpacity
             style={styles.assessmentCard}
@@ -69,15 +74,6 @@ const AssessmentSelectionScreen = () => {
             </View>
           </TouchableOpacity>
         </Animatable.View>
-
-        <Animatable.View animation="fadeInUp" duration={1000} delay={400}>
-            <TouchableOpacity
-              style={styles.backButton}
-              onPress={handleBack}
-            >
-              <Text style={styles.backButtonText}>‹ ย้อนกลับ</Text>
-            </TouchableOpacity>
-        </Animatable.View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -86,16 +82,37 @@ const AssessmentSelectionScreen = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#eafaf7',
+    backgroundColor: '#F4F7F6',
   },
   container: {
     flexGrow: 1,
     padding: 24,
   },
   header: {
-    marginBottom: 32,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    backgroundColor: '#F4F7F6',
   },
+  headerContent: {
+    flex: 1,
+    alignItems: 'center',
+    marginRight: 44, // Offset for back button
+  },
+  backButton: {
+    width: 44, height: 44,
+    borderRadius: 22,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1, shadowRadius: 2,
+    elevation: 3,
+  },
+  backButtonText: { fontSize: 24, color: '#0B6258', fontWeight: 'bold' },
   title: {
     fontSize: 28,
     fontFamily: 'IBMPlexSansThai-Bold',
@@ -105,10 +122,10 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 18,
     fontFamily: 'IBMPlexSans-Regular',
-    color: '#0B6258',
+    color: '#2C3E50',
     textAlign: 'center',
-    opacity: 0.8,
     marginTop: 4,
+    opacity: 0.8,
   },
   assessmentCard: {
     backgroundColor: '#FFFFFF',
@@ -155,16 +172,6 @@ const styles = StyleSheet.create({
     color: '#0B6258',
     opacity: 0.9,
     lineHeight: 20,
-  },
-  backButton: {
-    alignSelf: 'center',
-    marginTop: 16,
-  },
-  backButtonText: {
-    color: '#0B6258',
-    fontSize: 16,
-    fontFamily: 'IBMPlexSansThai-Bold',
-    textDecorationLine: 'underline',
   },
 });
 
