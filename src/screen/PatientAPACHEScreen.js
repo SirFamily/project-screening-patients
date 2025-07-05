@@ -251,7 +251,7 @@ const PatientAPACHEScreen = () => {
                 <TouchableOpacity style={[styles.chip, formData.acidBaseMode === 'ph' && styles.chipSelected]} onPress={() => setFormData(p => ({...p, acidBaseMode: 'ph'}))}><Text style={[styles.chipText, formData.acidBaseMode === 'ph' && styles.chipTextSelected]}>Arterial pH</Text></TouchableOpacity>
                 <TouchableOpacity style={[styles.chip, formData.acidBaseMode === 'hco3' && styles.chipSelected]} onPress={() => setFormData(p => ({...p, acidBaseMode: 'hco3'}))}><Text style={[styles.chipText, formData.acidBaseMode === 'hco3' && styles.chipTextSelected]}>Serum HCO₃</Text></TouchableOpacity>
             </View>
-            {renderInput('acidBaseValue', formData.acidBaseMode === 'ph' ? 'pH value (e,g.,0 - 14)' : 'mEq/L')}
+            {renderInput('acidBaseValue', formData.acidBaseMode === 'ph' ? 'e,g.,0 - 14' : 'mEq/L')}
           </ScoreInputCard>
 
           <ScoreInputCard icon="🧂" title="Serum Sodium" description="mEq/L" score={scores.sodium}>{renderInput('sodium', 'e.g., 140')}</ScoreInputCard>
