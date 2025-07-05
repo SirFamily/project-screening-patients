@@ -182,10 +182,10 @@ const PatientAPACHEScreen = () => {
 
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ScrollView contentContainerStyle={styles.container}>
-          <ScoreInputCard icon="🌡️" title="Temperature" description="Rectal Temperature (°C)" score={scores.temperature}>{renderInput('temperature', 'e.g., 37.0')}</ScoreInputCard>
-          <ScoreInputCard icon="📈" title="Mean Arterial Pressure" description="MAP (mmHg)" score={scores.map}>{renderInput('map', 'e.g., 90')}</ScoreInputCard>
-          <ScoreInputCard icon="❤️" title="Heart Rate" description="Beats per minute" score={scores.hr}>{renderInput('hr', 'e.g., 80')}</ScoreInputCard>
-          <ScoreInputCard icon="🫁" title="Respiratory Rate" description="Breaths per minute" score={scores.rr}>{renderInput('rr', 'e.g., 16')}</ScoreInputCard>
+          <ScoreInputCard icon="🌡️" title="Temperature" description="(°C)" score={scores.temperature}>{renderInput('temperature', 'e.g., 37.0')}</ScoreInputCard>
+          <ScoreInputCard icon="📈" title="Mean Arterial Pressure MAP" description="(mmHg)" score={scores.map}>{renderInput('map', 'e.g., 90')}</ScoreInputCard>
+          <ScoreInputCard icon="❤️" title="Heart Rate" description="per minute" score={scores.hr}>{renderInput('hr', 'e.g., 80')}</ScoreInputCard>
+          <ScoreInputCard icon="🫁" title="Respiratory Rate" description="per minute" score={scores.rr}>{renderInput('rr', 'e.g., 16')}</ScoreInputCard>
 
           <ScoreInputCard icon="💨" title="Oxygenation" description="A-aDO₂ or PaO₂" score={scores.oxygenation}>
             {renderInput('fio2', 'FiO₂ (e.g., 0.4)')}
@@ -213,7 +213,7 @@ const PatientAPACHEScreen = () => {
             </View>
           </ScoreInputCard>
 
-          <ScoreInputCard icon="🩸" title="Hematocrit" description="Percentage (%)" score={scores.hematocrit}>{renderInput('hematocrit', 'e.g., 45')}</ScoreInputCard>
+          <ScoreInputCard icon="🩸" title="Hematocrit" description="(%)" score={scores.hematocrit}>{renderInput('hematocrit', 'e.g., 45')}</ScoreInputCard>
           <ScoreInputCard icon="🦠" title="White Blood Count" description="x1000/mm³" score={scores.wbc}>{renderInput('wbc', 'e.g., 8.0')}</ScoreInputCard>
           <ScoreInputCard icon="🧠" title="Glasgow Coma Score" description="15 - GCS Score" score={scores.gcs}>{renderInput('gcs', '3-15')}</ScoreInputCard>
           
