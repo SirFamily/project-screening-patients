@@ -83,19 +83,13 @@ const EvaluationResultScreen = () => {
     return null;
   }, [results.totalRehScore, info.ward]);
 
-  const ScoreBreakdownRow = ({ category, rawScore, rehScore, isPriority = false }) => (
+  const ScoreBreakdownRow = ({ category, rawScore, rehScore }) => (
     <View style={styles.breakdownRow}>
         <Text style={styles.breakdownCategory}>{category}</Text>
         <View style={styles.breakdownScores}>
-            {isPriority ? (
-                <Text style={styles.breakdownReh}>REH Score: {rehScore}</Text>
-            ) : (
-                <>
-                    <Text style={styles.breakdownRaw}>Score: {rawScore ?? 'N/A'}</Text>
-                    <Text style={styles.breakdownArrow}>→</Text>
-                    <Text style={styles.breakdownReh}>REH: {rehScore ?? 'N/A'}</Text>
-                </>
-            )}
+            <Text style={styles.breakdownRaw}>Score: {rawScore ?? 'N/A'}</Text>
+            <Text style={styles.breakdownArrow}>→</Text>
+            <Text style={styles.breakdownReh}>REH: {rehScore ?? 'N/A'}</Text>
         </View>
     </View>
   );
@@ -130,7 +124,7 @@ const EvaluationResultScreen = () => {
 
         <Animatable.View animation="fadeInUp" duration={500} delay={300} style={styles.card}>
             <Text style={styles.cardTitle}>รายละเอียดคะแนน</Text>
-            <ScoreBreakdownRow category="Priority" rehScore={results.priorityRehScore} isPriority />
+            <ScoreBreakdownRow category="Priority" rawScore={results.priorityRehScore} rehScore={results.priorityRehScore} />
             <ScoreBreakdownRow category="CCI" rawScore={results.cciScore} rehScore={results.cciRehScore} />
             <ScoreBreakdownRow category={assessment.type} rawScore={assessment.type === 'SOFA' ? results.sofaScore : results.apacheScore} rehScore={results.assessmentRehScore} />
         </Animatable.View>
