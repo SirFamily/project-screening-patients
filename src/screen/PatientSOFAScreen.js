@@ -167,9 +167,9 @@ const PatientSOFAScreen = () => {
             </View>
           </ScoreInputCard>
 
-          <ScoreInputCard icon="🩸" title="Coagulation" description="Platelets x10³/μL" value={formData.platelets} onChangeText={text => setFormData({ ...formData, platelets: text })} placeholder="e.g., 150" score={scores.platelets} />
+          <ScoreInputCard icon="🩸" title="Coagulation" description="Platelets (x10³/μL)" value={formData.platelets} onChangeText={text => setFormData({ ...formData, platelets: text })} placeholder="e.g., 150" score={scores.platelets} />
 
-          <ScoreInputCard icon="🟤" title="Liver" description="Bilirubin mg/dL" value={formData.bilirubin} onChangeText={text => setFormData({ ...formData, bilirubin: text })} placeholder="e.g., 1.0" score={scores.bilirubin} />
+          <ScoreInputCard icon="🟤" title="Liver" description="Bilirubin (mg/dL)" value={formData.bilirubin} onChangeText={text => setFormData({ ...formData, bilirubin: text })} placeholder="e.g., 1.0" score={scores.bilirubin} />
 
           <ScoreInputCard icon="❤️" title="Cardiovascular" description="Hypotension / Vasopressors" score={scores.cardiovascular}>
             <View style={styles.optionsGrid}>
@@ -183,7 +183,7 @@ const PatientSOFAScreen = () => {
 
           <ScoreInputCard icon="🧠" title="Central Nervous System" description="Glasgow Coma Scale (GCS)" value={formData.cns} onChangeText={text => setFormData({ ...formData, cns: text })} placeholder="3-15" score={scores.cns} />
 
-          <ScoreInputCard icon="🟡" title="Renal" description="Creatinine mg/dL" value={formData.renal} onChangeText={text => setFormData({ ...formData, renal: text })} placeholder="e.g., 1.1" score={scores.renal} />
+          <ScoreInputCard icon="🟡" title="Renal" description="Creatinine (mg/dL)" value={formData.renal} onChangeText={text => setFormData({ ...formData, renal: text })} placeholder="e.g., 1.1" score={scores.renal} />
 
         </ScrollView>
       <Animatable.View animation="slideInUp" duration={500}>
