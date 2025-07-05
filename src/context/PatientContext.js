@@ -17,7 +17,6 @@ const initialState = {
     type: "", // 'SOFA' or 'APACHE'
     sofaValues: {
         respiration: '',
-        isVentilated: false,
         platelets: '',
         bilirubin: '',
         cardiovascular: '',

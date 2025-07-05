@@ -66,11 +66,31 @@ const getRenalScore = (v) => {
 };
 
 const cardiovascularOptions = [
-    { label: 'MAP ≥ 70', value: '0' },
-    { label: 'MAP < 70', value: '1' },
-    { label: 'Dopamine ≤ 5', value: '2' },
-    { label: 'Dopamine > 5', value: '3' },
-    { label: 'Dopamine > 15', value: '4' },
+  { 
+    value: '0', 
+    title: 'No hypotension',
+    description: 'MAP ≥ 70 mmHg without vasopressors' 
+  },
+  { 
+    value: '1', 
+    title: 'Hypotension',
+    description: 'MAP < 70 mmHg without vasopressors' 
+  },
+  { 
+    value: '2', 
+    title: 'Mild vasopressor use',
+    description: 'Dopamine ≤ 5 μg/kg/min or Dobutamine (any dose)' 
+  },
+  { 
+    value: '3', 
+    title: 'Moderate vasopressor use',
+    description: 'Dopamine > 5 to ≤ 15 μg/kg/min, or Epinephrine ≤ 0.1 μg/kg/min, or Norepinephrine ≤ 0.1 μg/kg/min' 
+  },
+  { 
+    value: '4', 
+    title: 'High vasopressor use',
+    description: 'Dopamine > 15 μg/kg/min, or Epinephrine > 0.1 μg/kg/min, or Norepinephrine > 0.1 μg/kg/min' 
+  },
 ];
 
 const ScoreInputCard = ({ icon, title, description, value, onChangeText, placeholder, score, children }) => (
@@ -104,24 +124,29 @@ const PatientSOFAScreen = () => {
   const { patientData, updatePatientData } = usePatientContext();
   const navigation = useNavigation();
   const [formData, setFormData] = useState({
-    respiration: '', isVentilated: false, platelets: '',
+    respiration: '', platelets: '',
     bilirubin: '', cardiovascular: '', cns: '', renal: '',
   });
 
+  const isVentilated = useMemo(() => {
+    const val = parseFloat(formData.respiration);
+    return !isNaN(val) && val < 200;
+  }, [formData.respiration]);
+
   const scores = useMemo(() => ({
-    respiration: getRespirationScore(formData.respiration, formData.isVentilated),
+    respiration: getRespirationScore(formData.respiration, isVentilated),
     platelets: getPlateletScore(formData.platelets),
     bilirubin: getBilirubinScore(formData.bilirubin),
     cardiovascular: parseInt(formData.cardiovascular || '0', 10),
     cns: getCnsScore(formData.cns),
     renal: getRenalScore(formData.renal),
-  }), [formData]);
+  }), [formData, isVentilated]);
 
   const totalSofaScore = Object.values(scores).reduce((sum, score) => sum + score, 0);
 
   const handleNext = () => {
     updatePatientData({
-      assessment: { ...patientData.assessment, sofaValues: formData },
+      assessment: { ...patientData.assessment, sofaValues: { ...formData, isVentilated } },
       results: { ...patientData.results, sofaScore: totalSofaScore },
     });
     navigation.navigate('PatientPriority');
@@ -159,9 +184,9 @@ const PatientSOFAScreen = () => {
                     <Text style={styles.switchLabel}>On mechanical ventilation?</Text>
                     <Switch
                         trackColor={{ false: "#E9E9EA", true: "#B2DFD5" }}
-                        thumbColor={formData.isVentilated ? "#0B6258" : "#f4f3f4"}
-                        onValueChange={() => setFormData(prev => ({ ...prev, isVentilated: !prev.isVentilated }))}
-                        value={formData.isVentilated}
+                        thumbColor={isVentilated ? "#0B6258" : "#f4f3f4"}
+                        value={isVentilated}
+                        disabled={true}
                     />
                 </View>
             </View>
@@ -172,10 +197,20 @@ const PatientSOFAScreen = () => {
           <ScoreInputCard icon="🟤" title="Liver" description="Bilirubin (mg/dL)" value={formData.bilirubin} onChangeText={text => setFormData({ ...formData, bilirubin: text })} placeholder="e.g., 1.0" score={scores.bilirubin} />
 
           <ScoreInputCard icon="❤️" title="Cardiovascular" description="Hypotension / Vasopressors" score={scores.cardiovascular}>
-            <View style={styles.optionsGrid}>
+            <View>
                 {cardiovascularOptions.map(opt => (
-                    <TouchableOpacity key={opt.value} style={[styles.optionChip, formData.cardiovascular === opt.value && styles.selectedOptionChip]} onPress={() => setFormData({ ...formData, cardiovascular: opt.value })}>
-                        <Text style={[styles.optionChipText, formData.cardiovascular === opt.value && styles.selectedOptionChipText]}>{opt.label}</Text>
+                    <TouchableOpacity 
+                        key={opt.value} 
+                        style={[styles.detailedOptionCard, formData.cardiovascular === opt.value && styles.selectedOptionCard]} 
+                        onPress={() => setFormData({ ...formData, cardiovascular: opt.value })}
+                    >
+                        <View style={styles.optionTextContainer}>
+                            <Text style={[styles.optionTitle, formData.cardiovascular === opt.value && styles.selectedOptionText]}>{opt.title}</Text>
+                            <Text style={[styles.optionDescription, formData.cardiovascular === opt.value && styles.selectedOptionText]}>{opt.description}</Text>
+                        </View>
+                        <View style={[styles.radioCircle, formData.cardiovascular === opt.value && styles.radioCircleSelected]}>
+                            {formData.cardiovascular === opt.value && <View style={styles.radioInnerCircle} />}
+                        </View>
                     </TouchableOpacity>
                 ))}
             </View>
@@ -290,29 +325,61 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   switchLabel: { fontFamily: 'IBMPlexSansThai-Regular', fontSize: 15, color: '#2C3E50' },
-  optionsGrid: {
+  detailedOptionCard: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  optionChip: {
-    width: '48%',
-    paddingVertical: 12,
-    borderRadius: 10,
+    alignItems: 'center',
+    backgroundColor: '#F9FAFB',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
     borderWidth: 1.5,
     borderColor: '#E0E6EB',
-    backgroundColor: '#F4F7F6',
-    alignItems: 'center',
-    marginBottom: 8,
   },
-  selectedOptionChip: { backgroundColor: '#0B6258', borderColor: '#0B6258' },
-  optionChipText: { color: '#2C3E50', fontFamily: 'IBMPlexSansThai-Regular', fontSize: 13 },
-  selectedOptionChipText: { color: '#FFFFFF', fontFamily: 'IBMPlexSansThai-SemiBold' },
+  selectedOptionCard: {
+    borderColor: '#0B6258',
+    backgroundColor: '#EAF7F5',
+  },
+  optionTextContainer: {
+    flex: 1,
+    marginRight: 12,
+  },
+  optionTitle: {
+    fontFamily: 'IBMPlexSansThai-Bold',
+    fontSize: 16,
+    color: '#2C3E50',
+  },
+  optionDescription: {
+    fontFamily: 'IBMPlexSansThai-Regular',
+    fontSize: 14,
+    color: '#7F8C8D',
+    marginTop: 4,
+  },
+  selectedOptionText: {
+    color: '#0B6258',
+  },
+  radioCircle: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#E0E6EB',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  radioCircleSelected: {
+    borderColor: '#0B6258',
+  },
+  radioInnerCircle: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: '#0B6258',
+  },
   footer: {
     position: 'absolute',
     bottom: 0, left: 0, right: 0,
     padding: 20,
-    paddingBottom: 30, // For safe area
+    paddingBottom: Platform.OS === 'ios' ? 30 : 20,
     backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
     borderTopColor: '#E0E6EB',
