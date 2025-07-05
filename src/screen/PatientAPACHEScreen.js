@@ -8,7 +8,7 @@ import { usePatientContext } from '../context/PatientContext';
 import { useNavigation } from '@react-navigation/native';
 import * as Animatable from 'react-native-animatable';
 
-// --- Scoring Functions (Copied from original file) ---
+// --- Scoring Functions ---
 const getScore = (value, ranges) => {
   const val = parseFloat(value);
   if (isNaN(val)) return 0;
@@ -92,12 +92,40 @@ const getAgeScore = (age) => getScore(age, [
   { min: 75, max: Infinity, score: 6 }, { min: 65, max: 74, score: 5 },
   { min: 55, max: 64, score: 3 }, { min: 45, max: 54, score: 2 }, { min: -Infinity, max: 44, score: 0 },
 ]);
-const getChronicHealthScore = (status) => {
-  if (status === 'non_op_or_emergency') return 5;
-  if (status === 'elective_post_op') return 2;
-  return 0;
+
+const chronicHealthSections = [
+    {
+      key: 'liver',
+      system: 'Liver',
+      conditions: 'Cirrhosis, Portal Hypertension, Upper GI Bleeding, Hepatic Encephalopathy',
+      requirement: 'ต้องได้รับการยืนยันหรือมีประวัติชัดเจน',
+    },
+    {
+      key: 'respiratory',
+      system: 'Respiratory',
+      conditions: 'Chronic lung disease with hypoxia, hypercapnia, pulmonary hypertension, ใช้ Home O₂/Ventilator',
+      requirement: 'มีผลต่อการดำเนินชีวิต',
+    },
+    {
+      key: 'renal',
+      system: 'Renal',
+      conditions: 'Chronic renal failure + on dialysis',
+      requirement: 'กำลังได้รับ dialysis',
+    },
+    {
+      key: 'immuno',
+      system: 'Immunosuppression',
+      conditions: 'HIV, การใช้ Steroid, Chemotherapy, ภูมิคุ้มกันบกพร่อง (Immunodeficiency)',
+      requirement: 'ต้องมีภาวะภูมิคุ้มกันต่ำเพียงพอ (ยืนยันการบกพร่อง)',
+    },
+];
+
+const getChronicHealthScore = (hasCondition, status) => {
+    if (!hasCondition) return 0;
+    if (status === 'with_surgery') return 5;
+    if (status === 'no_surgery') return 2;
+    return 0; // Default score if status not selected
 };
-// --- End Scoring Functions ---
 
 const ScoreInputCard = ({ icon, title, description, score, children }) => (
   <Animatable.View animation="fadeInUp" duration={800} style={styles.card}>
@@ -122,8 +150,22 @@ const PatientAPACHEScreen = () => {
     temperature: '', map: '', hr: '', rr: '',
     fio2: '', oxygenationValue: '', acidBaseMode: 'ph', acidBaseValue: '',
     sodium: '', potassium: '', creatinine: '', isArf: false, hematocrit: '', wbc: '', gcs: '', age: '',
-    chronicHealthStatus: 'none',
   });
+  const [chronicConditions, setChronicConditions] = useState({});
+  const [surgeryStatus, setSurgeryStatus] = useState(null); // null, 'with_surgery', 'no_surgery'
+
+  const hasChronicCondition = useMemo(() => Object.values(chronicConditions).some(v => v), [chronicConditions]);
+
+  // Effect to reset surgery status if no chronic conditions are selected
+  React.useEffect(() => {
+    if (!hasChronicCondition) {
+      setSurgeryStatus(null);
+    }
+  }, [hasChronicCondition]);
+
+  const handleChronicSwitch = (key) => {
+    setChronicConditions(prev => ({ ...prev, [key]: !prev[key] }));
+  };
 
   const scores = useMemo(() => ({
     temperature: getTemperatureScore(formData.temperature),
@@ -139,21 +181,31 @@ const PatientAPACHEScreen = () => {
     wbc: getWbcScore(formData.wbc),
     gcs: getGcsScore(formData.gcs),
     age: getAgeScore(formData.age),
-    chronicHealth: getChronicHealthScore(formData.chronicHealthStatus),
-  }), [formData]);
+    chronicHealth: getChronicHealthScore(hasChronicCondition, surgeryStatus),
+  }), [formData, hasChronicCondition, surgeryStatus]);
 
   const physiologyScore = scores.temperature + scores.map + scores.hr + scores.rr + scores.oxygenation + scores.acidBase + scores.sodium + scores.potassium + scores.creatinine + scores.hematocrit + scores.wbc + scores.gcs;
   const totalApacheScore = physiologyScore + scores.age + scores.chronicHealth;
 
   const handleNext = () => {
     updatePatientData({
-      assessment: { ...patientData.assessment, apacheValues: formData },
+      assessment: { ...patientData.assessment, apacheValues: { ...formData, chronicConditions, surgeryStatus } },
       results: { ...patientData.results, apacheScore: totalApacheScore },
     });
     navigation.navigate('PatientPriority');
   };
 
-  const isFormValid = !Object.values(formData).some(v => v === '' || v === null);
+  const isFormValid = useMemo(() => {
+    const baseFormValid = !['temperature', 'map', 'hr', 'rr', 'fio2', 'oxygenationValue', 'acidBaseValue', 'sodium', 'potassium', 'creatinine', 'hematocrit', 'wbc', 'gcs', 'age'].some(key => formData[key] === '' || formData[key] === null);
+    
+    if (!baseFormValid) return false;
+
+    if (hasChronicCondition && !surgeryStatus) {
+      return false; // A condition is selected, but surgery status is not.
+    }
+
+    return true;
+  }, [formData, hasChronicCondition, surgeryStatus]);
 
   const renderInput = (key, placeholder) => (
     <TextInput
@@ -219,12 +271,43 @@ const PatientAPACHEScreen = () => {
           
           <ScoreInputCard icon="🎂" title="Age Points" description="Patient's age in years" score={scores.age}>{renderInput('age', 'e.g., 55')}</ScoreInputCard>
 
-          <ScoreInputCard icon="⚕️" title="Chronic Health Points" description="Underlying health status" score={scores.chronicHealth}>
-             <View style={styles.optionsGrid}>
-                <TouchableOpacity style={[styles.optionChip, formData.chronicHealthStatus === 'none' && styles.selectedOptionChip]} onPress={() => setFormData(p => ({ ...p, chronicHealthStatus: 'none' }))}><Text style={[styles.optionChipText, formData.chronicHealthStatus === 'none' && styles.selectedOptionChipText]}>None</Text></TouchableOpacity>
-                <TouchableOpacity style={[styles.optionChip, formData.chronicHealthStatus === 'elective_post_op' && styles.selectedOptionChip]} onPress={() => setFormData(p => ({ ...p, chronicHealthStatus: 'elective_post_op' }))}><Text style={[styles.optionChipText, formData.chronicHealthStatus === 'elective_post_op' && styles.selectedOptionChipText]}>Elective Post-Op</Text></TouchableOpacity>
-                <TouchableOpacity style={[styles.optionChipFull, formData.chronicHealthStatus === 'non_op_or_emergency' && styles.selectedOptionChip]} onPress={() => setFormData(p => ({ ...p, chronicHealthStatus: 'non_op_or_emergency' }))}><Text style={[styles.optionChipText, formData.chronicHealthStatus === 'non_op_or_emergency' && styles.selectedOptionChipText]}>Non-operative or Emergency Post-op</Text></TouchableOpacity>
-            </View>
+          <ScoreInputCard icon="⚕️" title="Chronic Health Points" description=" " score={scores.chronicHealth}>
+            {chronicHealthSections.map((section) => (
+                <View key={section.key} style={styles.chronicRow}>
+                <View style={styles.chronicInfo}>
+                    <Text style={styles.chronicSystem}>{section.system}</Text>
+                    <Text style={styles.chronicConditions}>{section.conditions}</Text>
+                    <Text style={styles.chronicRequirement}>{section.requirement}</Text>
+                </View>
+                <Switch
+                    trackColor={{ false: "#E9E9EA", true: "#B2DFD5" }}
+                    thumbColor={chronicConditions[section.key] ? "#0B6258" : "#f4f3f4"}
+                    onValueChange={() => handleChronicSwitch(section.key)}
+                    value={!!chronicConditions[section.key]}
+                />
+                </View>
+            ))}
+            
+            {hasChronicCondition && (
+              <>
+                <View style={styles.separator} />
+                <Text style={styles.selectionTitle}>เงื่อนไขคะแนน (บังคับเลือก)</Text>
+                <View style={styles.optionsGrid}>
+                    <TouchableOpacity 
+                        style={[styles.optionChipFull, surgeryStatus === 'with_surgery' && styles.selectedOptionChip]}
+                        onPress={() => setSurgeryStatus('with_surgery')}
+                    >
+                        <Text style={[styles.optionChipText, surgeryStatus === 'with_surgery' && styles.selectedOptionChipText]}>มีโรคดังกล่าว และผ่าตัด</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                        style={[styles.optionChipFull, surgeryStatus === 'no_surgery' && styles.selectedOptionChip]}
+                        onPress={() => setSurgeryStatus('no_surgery')}
+                    >
+                        <Text style={[styles.optionChipText, surgeryStatus === 'no_surgery' && styles.selectedOptionChipText]}>มีโรคดังกล่าว แต่ไม่ผ่าตัด</Text>
+                    </TouchableOpacity>
+                </View>
+              </>
+            )}
           </ScoreInputCard>
 
         </ScrollView>
@@ -267,16 +350,25 @@ const styles = StyleSheet.create({
   chipSelected: { backgroundColor: '#0B6258', borderColor: '#0B6258' },
   chipText: { color: '#2C3E50', fontFamily: 'IBMPlexSansThai-Regular', fontSize: 14 },
   chipTextSelected: { color: '#FFFFFF', fontFamily: 'IBMPlexSansThai-SemiBold' },
-  optionsGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
+  optionsGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', paddingTop: 8 },
   optionChip: { width: '48%', paddingVertical: 12, borderRadius: 10, borderWidth: 1.5, borderColor: '#E0E6EB', backgroundColor: '#F4F7F6', alignItems: 'center', marginBottom: 8 },
   optionChipFull: { width: '100%', paddingVertical: 12, borderRadius: 10, borderWidth: 1.5, borderColor: '#E0E6EB', backgroundColor: '#F4F7F6', alignItems: 'center', marginBottom: 8 },
   selectedOptionChip: { backgroundColor: '#0B6258', borderColor: '#0B6258' },
   optionChipText: { color: '#2C3E50', fontFamily: 'IBMPlexSansThai-Regular', fontSize: 13, textAlign: 'center' },
   selectedOptionChipText: { color: '#FFFFFF', fontFamily: 'IBMPlexSansThai-SemiBold' },
+  optionChipDisabled: { backgroundColor: '#F0F4F8', borderColor: '#E0E6EB' },
   footer: { position: 'absolute', bottom: 0, left: 0, right: 0, padding: 20, paddingTop: 10, paddingBottom: Platform.OS === 'ios' ? 30 : 20, backgroundColor: '#FFFFFF', borderTopWidth: 1, borderTopColor: '#E0E6EB' },
   nextButton: { backgroundColor: '#0B6258', borderRadius: 12, paddingVertical: 16, alignItems: 'center', shadowColor: '#0B6258', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 5 },
   nextButtonDisabled: { backgroundColor: '#B2DFD5', elevation: 0 },
   nextButtonText: { color: 'white', fontSize: 18, fontFamily: 'IBMPlexSansThai-Bold' },
+  chronicRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#F0F4F8' },
+  chronicInfo: { flex: 1, marginRight: 12 },
+  chronicSystem: { fontFamily: 'IBMPlexSans-Bold', fontSize: 15, color: '#2C3E50' },
+  chronicConditions: { fontFamily: 'IBMPlexSansThai-Regular', fontSize: 14, color: '#34495E', marginTop: 2, flexWrap: 'wrap' },
+  chronicRequirement: { fontFamily: 'IBMPlexSansThai-Regular', fontStyle: 'italic', fontSize: 13, color: '#7F8C8D', marginTop: 4 },
+  separator: { height: 1, backgroundColor: '#E0E6EB', marginVertical: 16, },
+  selectionTitle: { fontFamily: 'IBMPlexSansThai-Bold', fontSize: 16, color: '#2C3E50', marginBottom: 12, textAlign: 'center' },
 });
 
 export default PatientAPACHEScreen;
+''
