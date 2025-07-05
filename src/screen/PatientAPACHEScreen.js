@@ -167,6 +167,14 @@ const PatientAPACHEScreen = () => {
     setChronicConditions(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
+  const handleFio2Change = (text) => {
+    setFormData(prev => ({
+      ...prev,
+      fio2: text,
+      oxygenationValue: '' // Reset dependent value
+    }));
+  };
+
   const scores = useMemo(() => ({
     temperature: getTemperatureScore(formData.temperature),
     map: getMapScore(formData.map),
@@ -196,7 +204,13 @@ const PatientAPACHEScreen = () => {
   };
 
   const isFormValid = useMemo(() => {
-    const baseFormValid = !['temperature', 'map', 'hr', 'rr', 'fio2', 'oxygenationValue', 'acidBaseValue', 'sodium', 'potassium', 'creatinine', 'hematocrit', 'wbc', 'gcs', 'age'].some(key => formData[key] === '' || formData[key] === null);
+    const oxygenationValueRequired = formData.fio2 !== '' && !isNaN(parseFloat(formData.fio2));
+    const requiredFields = ['temperature', 'map', 'hr', 'rr', 'fio2', 'acidBaseValue', 'sodium', 'potassium', 'creatinine', 'hematocrit', 'wbc', 'gcs', 'age'];
+    if (oxygenationValueRequired) {
+        requiredFields.push('oxygenationValue');
+    }
+
+    const baseFormValid = !requiredFields.some(key => formData[key] === '' || formData[key] === null);
     
     if (!baseFormValid) return false;
 
@@ -240,10 +254,21 @@ const PatientAPACHEScreen = () => {
           <ScoreInputCard icon="🫁" title="Respiratory Rate" description="per minute" score={scores.rr}>{renderInput('rr', 'e.g., 16')}</ScoreInputCard>
 
           <ScoreInputCard icon="💨" title="Oxygenation" description="A-aDO₂ or PaO₂" score={scores.oxygenation}>
-            {renderInput('fio2', 'FiO₂ (e.g., 0.4)')}
-            <View style={{height: 8}} />
-            {renderInput('oxygenationValue', parseFloat(formData.fio2) >= 0.5 ? 'A-aDO₂ (mmHg)' : 'PaO₂ (mmHg)')}
-            <Text style={styles.helperText}>* Enter PaO₂ if FiO₂ &lt; 0.5, otherwise enter A-aDO₂.</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="FiO₂ (e.g., 0.4)"
+              value={formData.fio2}
+              onChangeText={handleFio2Change}
+              keyboardType="numeric"
+              placeholderTextColor="#9DA8B7"
+            />
+            {formData.fio2 !== '' && !isNaN(parseFloat(formData.fio2)) && (
+              <>
+                <View style={{height: 8}} />
+                {renderInput('oxygenationValue', parseFloat(formData.fio2) >= 0.5 ? 'A-aDO₂ (mmHg)' : 'PaO₂ (mmHg)')}
+                <Text style={styles.helperText}>* Enter PaO₂ if FiO₂ &lt; 0.5, otherwise enter A-aDO₂.</Text>
+              </>
+            )}
           </ScoreInputCard>
 
           <ScoreInputCard icon="🧪" title="Arterial pH / HCO₃" description="Acid-Base Balance" score={scores.acidBase}>
