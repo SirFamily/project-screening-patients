@@ -94,7 +94,7 @@ const genders = [
               </View>
   
               <View style={styles.card}>
-                  <Text style={styles.cardTitle}>เพศ / Gender</Text>
+                  <Text style={styles.cardTitle}>เพศ / Sex</Text>
                   <View style={styles.genderContainer}>
                   {genders.map((gender) => (
                       <TouchableOpacity
