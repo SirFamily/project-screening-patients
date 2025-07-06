@@ -25,7 +25,6 @@ const HomeScreen = () => {
           >
             <Text style={styles.buttonIcon}>🩺</Text>
             <Text style={styles.buttonText}>กรองผู้ป่วยใหม่</Text>
-            <Text style={styles.buttonSubtext}>New Screening</Text>
           </TouchableOpacity>
 
           <TouchableOpacity 
@@ -34,7 +33,6 @@ const HomeScreen = () => {
           >
             <Text style={styles.buttonIcon}>📂</Text>
             <Text style={styles.buttonText}>รายการที่บันทึกไว้</Text>
-            <Text style={styles.buttonSubtext}>Saved Records</Text>
           </TouchableOpacity>
         </Animatable.View>
       </View>
@@ -88,12 +86,6 @@ const styles = StyleSheet.create({
     fontFamily: 'IBMPlexSansThai-Bold',
     fontSize: 20,
     color: '#0B6258',
-  },
-  buttonSubtext: {
-    fontFamily: 'IBMPlexSans-Regular',
-    fontSize: 14,
-    color: '#2C3E50',
-    marginTop: 4,
   },
 });
 
