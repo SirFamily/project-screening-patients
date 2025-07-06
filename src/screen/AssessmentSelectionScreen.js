@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1, shadowRadius: 2,
     elevation: 3,
   },
-  backButtonText: { fontSize: 24, color: '#0B6258', fontWeight: 'bold' },
+  backButtonText: { fontSize: 24, color: '#0B6258', fontFamily: 'IBMPlexSansThai-Bold' },
   title: {
     fontSize: 28,
     fontFamily: 'IBMPlexSansThai-Bold',

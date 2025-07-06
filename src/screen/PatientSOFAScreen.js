@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1, shadowRadius: 2,
     elevation: 3,
   },
-  backButtonText: { fontSize: 24, color: '#0B6258', fontWeight: 'bold' },
+  backButtonText: { fontSize: 24, color: '#0B6258', fontFamily: 'IBMPlexSansThai-Bold' },
   headerTitle: {
     fontFamily: 'IBMPlexSansThai-Bold',
     fontSize: 22,
@@ -317,7 +317,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 16,
-    fontFamily: 'IBMPlexSans-Regular',
+    fontFamily: 'IBMPlexSansThai-Regular',
     color: '#2C3E50',
   },
   switchRow: {
@@ -358,6 +358,7 @@ const styles = StyleSheet.create({
   },
   selectedOptionText: {
     color: '#0B6258',
+    fontFamily: 'IBMPlexSansThai-Bold',
   },
   radioCircle: {
     width: 24,

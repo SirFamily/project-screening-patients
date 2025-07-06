@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
   container: { paddingHorizontal: 20, paddingBottom: 120, paddingTop: 10 },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 20, backgroundColor: '#F4F7F6' },
   backButton: { width: 44, height: 44, borderRadius: 22, backgroundColor: '#FFFFFF', justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2, elevation: 3 },
-  backButtonText: { fontSize: 24, color: '#0B6258', fontWeight: 'bold' },
+  backButtonText: { fontSize: 24, color: '#0B6258', fontFamily: 'IBMPlexSansThai-Bold' },
   headerTitle: { fontFamily: 'IBMPlexSansThai-Bold', fontSize: 22, color: '#0B6258' },
   totalScoreCircle: { width: 60, height: 60, borderRadius: 30, backgroundColor: '#0B6258', justifyContent: 'center', alignItems: 'center', elevation: 5, shadowColor: '#0B6258', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 4 },
   totalScoreLabel: { fontFamily: 'IBMPlexSans-Regular', fontSize: 12, color: '#FFFFFF', opacity: 0.8 },

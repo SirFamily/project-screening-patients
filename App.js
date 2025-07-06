@@ -11,8 +11,10 @@ const fetchFonts = () => {
   return Font.loadAsync({
     'IBMPlexSans-Regular': require('./assets/fonts/IBMPlexSans-Regular.ttf'),
     'IBMPlexSans-Bold': require('./assets/fonts/IBMPlexSans-Bold.ttf'),
+    'IBMPlexSans-Medium': require('./assets/fonts/IBMPlexSans-Medium.ttf'),
     'IBMPlexSansThai-Regular': require('./assets/fonts/IBMPlexSansThai-Regular.ttf'),
     'IBMPlexSansThai-Bold': require('./assets/fonts/IBMPlexSansThai-Bold.ttf'),
+    'IBMPlexSansThai-SemiBold': require('./assets/fonts/IBMPlexSansThai-SemiBold.ttf'),
   });
 };
 

@@ -136,8 +136,7 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 20, },
   headerTitle: { fontFamily: 'IBMPlexSansThai-Bold', fontSize: 24, color: '#0B6258' },
   backButton: { padding: 5 },
-  backButtonText: { fontSize: 24, color: '#0B6258', fontWeight: 'bold' },
-  headerTitle: { fontFamily: 'IBMPlexSansThai-Bold', fontSize: 24, color: '#0B6258' },
+  backButtonText: { fontSize: 24, color: '#0B6258', fontFamily: 'IBMPlexSansThai-Bold' },
   listContainer: { padding: 20 },
   recordCard: {
     backgroundColor: '#FFFFFF',

@@ -30,8 +30,8 @@ const InputField = ({ label, value, onChangeText, placeholder, keyboardType = 'd
   );
 
 const genders = [
-    { label: 'ชาย (Male)', value: 'male', icon: '👨' },
-    { label: 'หญิง (Female)', value: 'female', icon: '👩' },
+    { label: 'ชาย (Male)', value: 'male' },
+    { label: 'หญิง (Female)', value: 'female' },
   ];
   
   const PatientInfoScreen = () => {
@@ -70,9 +70,9 @@ const genders = [
                 <Text style={styles.backButtonText}>←</Text>
             </TouchableOpacity>
             <Animatable.View animation="fadeInDown" duration={1000} style={styles.header}>
-              <View style={styles.headerIconContainer}>
+              {/* <View style={styles.headerIconContainer}>
                   <Text style={styles.headerIcon}>📋</Text>
-              </View>
+              </View> */}
               <Text style={styles.title}>ข้อมูลผู้ป่วย</Text>
               <Text style={styles.subtitle}>Patient Information</Text>
             </Animatable.View>
@@ -113,7 +113,6 @@ const genders = [
                           ]}
                           onPress={() => setFormData({ ...formData, gender: gender.value })}
                       >
-                          <Text style={styles.optionIcon}>{gender.icon}</Text>
                           <Text style={[styles.optionText, formData.gender === gender.value && styles.selectedOptionText]}>
                               {gender.label}
                           </Text>
@@ -186,7 +185,7 @@ const styles = StyleSheet.create({
   backButtonText: {
     fontSize: 24,
     color: '#0B6258',
-    fontWeight: 'bold',
+    fontFamily: 'IBMPlexSansThai-Bold',
   },
   headerIconContainer: {
     width: 80, height: 80, borderRadius: 40,
@@ -275,7 +274,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 16,
-    fontFamily: 'IBMPlexSans-Regular',
+    fontFamily: 'IBMPlexSansThai-Regular',
     color: '#2C3E50',
   },
   footer: {

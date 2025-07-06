@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 20 },
   headerTitle: { fontFamily: 'IBMPlexSansThai-Bold', fontSize: 24, color: '#0B6258' },
   backButton: { padding: 5 },
-  backButtonText: { fontSize: 24, color: '#0B6258', fontWeight: 'bold' },
+  backButtonText: { fontSize: 24, color: '#0B6258', fontFamily: 'IBMPlexSansThai-Bold' },
   card: { backgroundColor: '#FFFFFF', borderRadius: 16, marginBottom: 16, padding: 20, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 5, elevation: 2 },
   cardTitle: { fontFamily: 'IBMPlexSansThai-Bold', fontSize: 18, color: '#2C3E50', marginBottom: 12 },
   patientInfoContainer: { alignItems: 'center', paddingVertical: 10 },

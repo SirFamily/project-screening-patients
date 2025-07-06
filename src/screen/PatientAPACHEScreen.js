@@ -368,7 +368,7 @@ const styles = StyleSheet.create({
   scoreBadge: { marginLeft: 'auto', width: 36, height: 36, borderRadius: 18, backgroundColor: '#EAF7F5', justifyContent: 'center', alignItems: 'center', borderWidth: 1.5, borderColor: '#B2DFD5' },
   scoreBadgeText: { color: '#0B6258', fontSize: 16, fontFamily: 'IBMPlexSans-Bold' },
   cardBody: { padding: 16 },
-  input: { backgroundColor: '#F4F7F6', borderRadius: 10, borderWidth: 1, borderColor: '#E0E6EB', paddingHorizontal: 16, paddingVertical: 12, fontSize: 16, fontFamily: 'IBMPlexSans-Regular', color: '#2C3E50' },
+  input: { backgroundColor: '#F4F7F6', borderRadius: 10, borderWidth: 1, borderColor: '#E0E6EB', paddingHorizontal: 16, paddingVertical: 12, fontSize: 16, fontFamily: 'IBMPlexSansThai-Regular', color: '#2C3E50' },
   helperText: { fontFamily: 'IBMPlexSansThai-Regular', fontSize: 12, color: '#7F8C8D', marginTop: 8 },
   switchRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 16 },
   switchLabel: { fontFamily: 'IBMPlexSansThai-Regular', fontSize: 15, color: '#2C3E50' },
