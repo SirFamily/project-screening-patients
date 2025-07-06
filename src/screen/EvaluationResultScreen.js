@@ -84,7 +84,7 @@ const EvaluationResultScreen = () => {
 
   const handleResetAndNavigate = () => {
     if (resetPatientData) resetPatientData();
-    navigation.navigate('PatientInfo');
+    navigation.replace('PatientInfo');
   };
 
 

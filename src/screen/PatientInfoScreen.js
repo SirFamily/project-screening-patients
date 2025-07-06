@@ -41,7 +41,6 @@ const genders = [
       firstName: '',
       lastName: '',
       hn: '',
-      age: '',
       gender: '',
     });
   
@@ -55,7 +54,7 @@ const genders = [
       navigation.navigate('AssessmentSelection');
     };
   
-    const isFormValid = formData.ward && formData.firstName && formData.lastName && formData.hn && formData.age && formData.gender;
+    const isFormValid = formData.ward && formData.firstName && formData.lastName && formData.hn && formData.gender;
   
     return (
       <SafeAreaView style={styles.safeArea}>
@@ -65,7 +64,7 @@ const genders = [
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
           <View style={styles.headerContainer}>
-            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+            <TouchableOpacity onPress={() => navigation.navigate('Home')} style={styles.backButton}>
                 <Text style={styles.backButtonText}>←</Text>
             </TouchableOpacity>
             <Animatable.View animation="fadeInDown" duration={1000} style={styles.header}>
@@ -133,13 +132,6 @@ const genders = [
                       placeholder="เช่น ใจดี"
                       value={formData.lastName}
                       onChangeText={(text) => setFormData({ ...formData, lastName: text })}
-                  />
-                   <InputField 
-                      label="อายุ (Age)"
-                      placeholder="กรอกอายุ"
-                      value={formData.age}
-                      onChangeText={(text) => setFormData({ ...formData, age: text.replace(/[^0-9]/g, '') })}
-                      keyboardType="numeric"
                   />
                    <InputField 
                       label="หมายเลข HN (Hospital Number)"

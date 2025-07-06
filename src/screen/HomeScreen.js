@@ -12,7 +12,7 @@ const HomeScreen = () => {
       <StatusBar barStyle="light-content" backgroundColor="#0B6258" />
       <View style={styles.container}>
         <Animatable.View animation="fadeInDown" duration={1000} style={styles.header}>
-          <Text style={styles.title}>Patient Screening</Text>
+          <Text style={styles.title}>ICU scoring</Text>
           <Text style={styles.subtitle}>แอปพลิเคชันคัดกรองผู้ป่วย</Text>
         </Animatable.View>
 

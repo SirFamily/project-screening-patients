@@ -10,7 +10,6 @@ const initialState = {
     hn: "",
     ward: "",
     name: "",
-    age: "",
     gender: "",
   },
   assessment: {

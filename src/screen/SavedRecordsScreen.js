@@ -93,7 +93,7 @@ const SavedRecordsScreen = () => {
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#F4F7F6' },
   centeredContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 20, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: '#E0E6EB' },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 20, },
   headerTitle: { fontFamily: 'IBMPlexSansThai-Bold', fontSize: 24, color: '#0B6258' },
   backButton: { padding: 5 },
   backButtonText: { fontSize: 24, color: '#0B6258', fontWeight: 'bold' },
