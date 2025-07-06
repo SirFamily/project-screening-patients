@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl, Alert } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { getSavedPatients, deleteEvaluation } from '../api/evaluationService';
 import * as Animatable from 'react-native-animatable';
+import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 // import useBackButtonExitHandler from '../hooks/useBackButtonExitHandler';
 
 const SavedRecordsScreen = () => {
@@ -12,6 +13,9 @@ const SavedRecordsScreen = () => {
   const [patients, setPatients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+  const [evaluationToDelete, setEvaluationToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const fetchPatients = async () => {
     try {
@@ -39,31 +43,32 @@ const SavedRecordsScreen = () => {
     fetchPatients();
   };
 
-  const handleDelete = async (evaluationId) => {
-    Alert.alert(
-      "ยืนยันการลบข้อมูล",
-      "คุณต้องการลบข้อมูลการประเมินนี้ใช่หรือไม่? การดำเนินการนี้ไม่สามารถย้อนกลับได้",
-      [
-        {
-          text: "ยกเลิก",
-          style: "cancel"
-        },
-        {
-          text: "ลบ",
-          onPress: async () => {
-            try {
-              await deleteEvaluation(evaluationId);
-              Alert.alert("ลบสำเร็จ", "ข้อมูลการประเมินถูกลบเรียบร้อยแล้ว");
-              fetchPatients(); // Refresh the list after deletion
-            } catch (error) {
-              console.error("Failed to delete evaluation:", error);
-              Alert.alert("ลบไม่สำเร็จ", "ไม่สามารถลบข้อมูลการประเมินได้ กรุณาลองใหม่อีกครั้ง");
-            }
-          },
-          style: "destructive"
-        }
-      ]
-    );
+  const handleDelete = (evaluationId) => {
+    setEvaluationToDelete(evaluationId);
+    setIsDeleteModalVisible(true);
+  };
+
+  const confirmDelete = async () => {
+    if (evaluationToDelete) {
+      setIsDeleting(true);
+      try {
+        await deleteEvaluation(evaluationToDelete);
+        // Alert.alert("ลบสำเร็จ", "ข้อมูลการประเมินถูกลบเรียบร้อยแล้ว");
+        fetchPatients(); // Refresh the list after deletion
+      } catch (error) {
+        console.error("Failed to delete evaluation:", error);
+        // Alert.alert("ลบไม่สำเร็จ", "ไม่สามารถลบข้อมูลการประเมินได้ กรุณาลองใหม่อีกครั้ง");
+      } finally {
+        setIsDeleting(false);
+        setIsDeleteModalVisible(false);
+        setEvaluationToDelete(null);
+      }
+    }
+  };
+
+  const cancelDelete = () => {
+    setIsDeleteModalVisible(false);
+    setEvaluationToDelete(null);
   };
 
   const renderItem = ({ item, index }) => (
@@ -125,6 +130,12 @@ const SavedRecordsScreen = () => {
         refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#0B6258']} />
         }
+      />
+      <DeleteConfirmationModal
+        visible={isDeleteModalVisible}
+        onDelete={confirmDelete}
+        onCancel={cancelDelete}
+        isDeleting={isDeleting}
       />
     </SafeAreaView>
   );
