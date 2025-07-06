@@ -1,12 +1,15 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, ScrollView,
-  StatusBar, Platform
+  StatusBar, Platform, Alert
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { usePatientContext } from '../context/PatientContext';
 import { useNavigation } from '@react-navigation/native';
 import * as Animatable from 'react-native-animatable';
+import SaveConfirmationModal from '../components/SaveConfirmationModal';
+import { saveEvaluation } from '../api/evaluationService';
+
 
 // Translated Nursing Guidelines from PDF
 const nursingGuidelines = {
@@ -53,11 +56,37 @@ const EvaluationResultScreen = () => {
   const { patientData, resetPatientData } = usePatientContext();
   const navigation = useNavigation();
   const { info, assessment, results } = patientData;
+  const [modalVisible, setModalVisible] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const handleNewPatient = () => {
+
+  const handleOpenModal = () => {
+    setModalVisible(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalVisible(false);
+  };
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      await saveEvaluation(patientData);
+      Alert.alert('สำเร็จ', 'บันทึกข้อมูลการประเมินเรียบร้อยแล้ว');
+      handleResetAndNavigate();
+    } catch (error) {
+      Alert.alert('เกิดข้อผิดพลาด', error.message || 'ไม่สามารถบันทึกข้อมูลได้');
+    } finally {
+      setIsSaving(false);
+      setModalVisible(false);
+    }
+  };
+
+  const handleResetAndNavigate = () => {
     if (resetPatientData) resetPatientData();
     navigation.navigate('PatientInfo');
   };
+
 
   const getRiskStyle = (level) => {
     if (level.includes('เข้า ICU')) return { container: styles.riskHigh, text: styles.riskHighText };
@@ -139,10 +168,19 @@ const EvaluationResultScreen = () => {
 
       </ScrollView>
       <Animatable.View animation="slideInUp" duration={500} style={styles.footer}>
-        <TouchableOpacity style={styles.nextButton} onPress={handleNewPatient}>
+        <TouchableOpacity style={styles.nextButton} onPress={handleOpenModal}>
           <Text style={styles.nextButtonText}>ประเมินผู้ป่วยรายใหม่</Text>
         </TouchableOpacity>
       </Animatable.View>
+       <SaveConfirmationModal
+        visible={modalVisible}
+        isSaving={isSaving}
+        onSave={handleSave}
+        onCancel={() => {
+          handleCloseModal();
+          handleResetAndNavigate(); // Reset and navigate back if cancelled
+        }}
+      />
     </SafeAreaView>
   );
 };
