@@ -19,10 +19,10 @@ const SaveConfirmationModal = ({ visible, onSave, onCancel, isSaving }) => {
           ) : (
             <View style={styles.buttonContainer}>
               <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={onCancel}>
-                <Text style={[styles.buttonText, styles.cancelButtonText]}>ยกเลิก</Text>
+                <Text style={[styles.buttonText, styles.cancelButtonText]}>ไม่</Text>
               </TouchableOpacity>
               <TouchableOpacity style={[styles.button, styles.saveButton]} onPress={onSave}>
-                <Text style={[styles.buttonText, styles.saveButtonText]}>บันทึก</Text>
+                <Text style={[styles.buttonText, styles.saveButtonText]}>ใช่</Text>
               </TouchableOpacity>
             </View>
           )}
