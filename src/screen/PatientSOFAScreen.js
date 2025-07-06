@@ -70,12 +70,12 @@ const cardiovascularOptions = [
   { 
     value: '0', 
     title: 'No hypotension',
-    description: 'MAP ≥ 70 mmHg without vasopressors' 
+    description: 'MAP ≥ 70 mmHg' 
   },
   { 
     value: '1', 
     title: 'Hypotension',
-    description: 'MAP < 70 mmHg without vasopressors' 
+    description: 'MAP < 70 mmHg' 
   },
   { 
     value: '2', 
