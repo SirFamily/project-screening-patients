@@ -6,7 +6,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import * as Animatable from 'react-native-animatable';
-import useBackButtonExitHandler from '../hooks/useBackButtonExitHandler';
+// import useBackButtonExitHandler from '../hooks/useBackButtonExitHandler';
 
 // Re-using the same guidelines and styles from EvaluationResultScreen
 // In a real app, you might move these to a shared file.
@@ -20,7 +20,7 @@ const nursingGuidelines = {
 const RecordDetailScreen = () => {
   const route = useRoute();
   const navigation = useNavigation();
-  useBackButtonExitHandler();
+  // useBackButtonExitHandler();
   const { evaluation, patient } = route.params;
 
   // Re-structure data to mimic the context structure for UI compatibility
