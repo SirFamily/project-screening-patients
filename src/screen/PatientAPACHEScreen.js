@@ -291,7 +291,7 @@ const PatientAPACHEScreen = () => {
           </ScoreInputCard>
 
           <ScoreInputCard icon="🩸" title="Hematocrit" description="%" score={scores.hematocrit}>{renderInput('hematocrit', 'e.g., 45')}</ScoreInputCard>
-          <ScoreInputCard icon="🦠" title="White Blood Count" description="x1000/mm³" score={scores.wbc}>{renderInput('wbc', 'e.g., 8.0')}</ScoreInputCard>
+          <ScoreInputCard icon="🦠" title="White Blood Cell Count" description="x1000/mm³" score={scores.wbc}>{renderInput('wbc', 'e.g., 8.0')}</ScoreInputCard>
           <ScoreInputCard icon="🧠" title="Glasgow Coma Score" description="15 - GCS Score" score={scores.gcs}>{renderInput('gcs', '3-15')}</ScoreInputCard>
           
           <ScoreInputCard icon="🎂" title="Age Points" description="Patient's age in years" score={scores.age}>{renderInput('age', 'e.g., 55')}</ScoreInputCard>
