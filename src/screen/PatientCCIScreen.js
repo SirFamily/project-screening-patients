@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { usePatientContext } from '../context/PatientContext';
 import { useNavigation } from '@react-navigation/native';
 import * as Animatable from 'react-native-animatable';
+import useBackButtonExitHandler from '../hooks/useBackButtonExitHandler';
 
 const cciSections = {
   score1: {
@@ -42,6 +43,7 @@ const cciSections = {
 const PatientCCIScreen = () => {
   const { patientData, updatePatientData } = usePatientContext();
   const navigation = useNavigation();
+  useBackButtonExitHandler();
   const [comorbidities, setComorbidities] = useState({});
 
   const toggleSwitch = (key) => {

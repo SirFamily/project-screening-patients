@@ -11,10 +11,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { usePatientContext } from '../context/PatientContext';
 import { useNavigation } from '@react-navigation/native';
 import * as Animatable from 'react-native-animatable';
+import useBackButtonExitHandler from '../hooks/useBackButtonExitHandler';
 
 const AssessmentSelectionScreen = () => {
   const { patientData, updatePatientData } = usePatientContext();
   const navigation = useNavigation();
+  useBackButtonExitHandler();
 
   const handleSelectAssessment = (type) => {
     updatePatientData({ assessment: { ...patientData.assessment, type: type } });

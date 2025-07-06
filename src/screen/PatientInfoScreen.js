@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { usePatientContext } from '../context/PatientContext';
 import { useNavigation } from '@react-navigation/native';
 import * as Animatable from 'react-native-animatable';
+import useBackButtonExitHandler from '../hooks/useBackButtonExitHandler';
 
 const wards = [
   { label: 'ห้องฉุกเฉิน (Emergency)', value: 'AE', icon: '🚑' },
@@ -35,8 +36,9 @@ const genders = [
   
   const PatientInfoScreen = () => {
     const { updatePatientData } = usePatientContext();
-    const navigation = useNavigation();
-    const [formData, setFormData] = useState({
+  const navigation = useNavigation();
+  useBackButtonExitHandler(); // Block back button
+  const [formData, setFormData] = useState({
       ward: '',
       firstName: '',
       lastName: '',

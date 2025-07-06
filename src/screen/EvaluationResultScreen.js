@@ -9,6 +9,7 @@ import { useNavigation } from '@react-navigation/native';
 import * as Animatable from 'react-native-animatable';
 import SaveConfirmationModal from '../components/SaveConfirmationModal';
 import { saveEvaluation } from '../api/evaluationService';
+import useBackButtonExitHandler from '../hooks/useBackButtonExitHandler';
 
 
 // Translated Nursing Guidelines from PDF
@@ -55,6 +56,7 @@ const nursingGuidelines = {
 const EvaluationResultScreen = () => {
   const { patientData, resetPatientData } = usePatientContext();
   const navigation = useNavigation();
+  useBackButtonExitHandler();
   const { info, assessment, results } = patientData;
   const [modalVisible, setModalVisible] = useState(false);
   const [isSaving, setIsSaving] = useState(false);

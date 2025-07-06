@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { usePatientContext } from '../context/PatientContext';
 import { useNavigation } from '@react-navigation/native';
 import * as Animatable from 'react-native-animatable';
+import useBackButtonExitHandler from '../hooks/useBackButtonExitHandler';
 
 // --- Scoring Functions ---
 const getScore = (value, ranges) => {
@@ -145,6 +146,7 @@ const ScoreInputCard = ({ icon, title, description, score, children }) => (
 
 const PatientAPACHEScreen = () => {
   const navigation = useNavigation();
+  useBackButtonExitHandler();
   const { patientData, updatePatientData } = usePatientContext();
   const [formData, setFormData] = useState({
     temperature: '', map: '', hr: '', rr: '',

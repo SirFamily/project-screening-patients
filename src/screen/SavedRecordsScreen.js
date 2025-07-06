@@ -4,9 +4,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { getSavedPatients } from '../api/evaluationService';
 import * as Animatable from 'react-native-animatable';
+import useBackButtonExitHandler from '../hooks/useBackButtonExitHandler';
 
 const SavedRecordsScreen = () => {
   const navigation = useNavigation();
+  useBackButtonExitHandler();
   const [patients, setPatients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);

@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { usePatientContext } from '../context/PatientContext';
 import { useNavigation } from '@react-navigation/native';
 import * as Animatable from 'react-native-animatable';
+import useBackButtonExitHandler from '../hooks/useBackButtonExitHandler';
 
 const priorityOptions = [
   { 
@@ -38,6 +39,7 @@ const priorityOptions = [
 const PatientPriorityScreen = () => {
   const { updatePatientData } = usePatientContext();
   const navigation = useNavigation();
+  useBackButtonExitHandler();
   const [priority, setPriority] = useState('');
 
   const handleNext = () => {

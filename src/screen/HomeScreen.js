@@ -3,9 +3,11 @@ import { View, Text, StyleSheet, TouchableOpacity, StatusBar } from 'react-nativ
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import * as Animatable from 'react-native-animatable';
+import useBackButtonExitHandler from '../hooks/useBackButtonExitHandler';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
+  useBackButtonExitHandler();
 
   return (
     <SafeAreaView style={styles.safeArea}>

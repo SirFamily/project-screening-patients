@@ -1,49 +1,32 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useCallback } from 'react';
 import { BackHandler, Alert } from 'react-native';
-import { CommonActions } from '@react-navigation/native';
-import { usePatientContext } from '../context/PatientContext';
+import { useFocusEffect } from '@react-navigation/native';
 
-const useBackButtonExitHandler = (navigation) => {
-  const { resetPatientData } = usePatientContext();
-  const [showExitModal, setShowExitModal] = useState(false);
+/**
+ * Custom hook to block the Android hardware back button on a screen.
+ * When the screen is focused, it shows an alert and prevents the default back action.
+ */
+const useBackButtonExitHandler = () => {
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        Alert.alert(
+          'ไม่สามารถย้อนกลับได้',
+          'กรุณาใช้ปุ่มย้อนกลับในแอปพลิเคชันเท่านั้น',
+          [{ text: 'ตกลง' }]
+        );
+        // Returning true prevents the default back action
+        return true;
+      };
 
-  const handleConfirmExit = useCallback(() => {
-    setShowExitModal(false);
-    resetPatientData(); // Call the reset function from PatientContext
-
-    // Navigate to the initial screen (e.g., 'Home') and reset the navigation stack
-    if (navigation) {
-      navigation.dispatch(
-        CommonActions.reset({
-          index: 0,
-          routes: [{ name: 'PatientInfo' }], // <<< IMPORTANT: Replace 'Home' with the actual name of your initial screen route
-        })
+      const backHandler = BackHandler.addEventListener(
+        'hardwareBackPress',
+        onBackPress
       );
-    }
 
-    // Exit the app
-    BackHandler.exitApp();
-  }, [navigation, resetPatientData]);
-
-  const handleCancelExit = useCallback(() => {
-    setShowExitModal(false);
-  }, []);
-
-  useEffect(() => {
-    const backAction = () => {
-      setShowExitModal(true); // Show the custom modal
-      return true; // Prevent default back button behavior
-    };
-
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      backAction
-    );
-
-    return () => backHandler.remove();
-  }, []); // No dependency on navigation or resetPatientData here, as they are handled by useCallback
-
-  return { showExitModal, handleConfirmExit, handleCancelExit };
+      return () => backHandler.remove();
+    }, [])
+  );
 };
 
 export default useBackButtonExitHandler;
