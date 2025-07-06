@@ -129,7 +129,11 @@ const EvaluationResultScreen = () => {
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor="#F4F7F6" />
       <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Text style={styles.backButtonText}>‹</Text>
+        </TouchableOpacity>
         <Text style={styles.headerTitle}>ผลการประเมิน</Text>
+        <View style={styles.placeholderView} />
       </View>
 
       <ScrollView contentContainerStyle={styles.container}>
@@ -190,7 +194,10 @@ const EvaluationResultScreen = () => {
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#F4F7F6' },
   container: { paddingHorizontal: 20, paddingBottom: 120, paddingTop: 10 },
-  header: { paddingVertical: 12, paddingHorizontal: 20, alignItems: 'center' },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 20, backgroundColor: '#F4F7F6' },
+  backButton: { width: 44, height: 44, borderRadius: 22, backgroundColor: '#FFFFFF', justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2, elevation: 3 },
+  backButtonText: { fontSize: 24, color: '#0B6258', fontWeight: 'bold' },
+  placeholderView: { width: 44, height: 44 },
   headerTitle: { fontFamily: 'IBMPlexSansThai-Bold', fontSize: 24, color: '#0B6258' },
   card: { backgroundColor: '#FFFFFF', borderRadius: 16, marginBottom: 16, padding: 20, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 5, elevation: 2 },
   cardTitle: { fontFamily: 'IBMPlexSansThai-Bold', fontSize: 18, color: '#2C3E50', marginBottom: 12 },
