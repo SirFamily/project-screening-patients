@@ -35,3 +35,21 @@ export const getSavedPatients = async () => {
     throw error;
   }
 };
+
+export const deleteEvaluation = async (evaluationId) => {
+  try {
+    const response = await fetch(`${API_URL}/evaluations/${evaluationId}`, {
+      method: 'DELETE',
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to delete evaluation');
+    }
+
+    return true;
+  } catch (error) {
+    console.error('API Error:', error);
+    throw error;
+  }
+};

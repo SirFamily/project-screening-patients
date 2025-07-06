@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { getSavedPatients } from '../api/evaluationService';
+import { getSavedPatients, deleteEvaluation } from '../api/evaluationService';
 import * as Animatable from 'react-native-animatable';
 import useBackButtonExitHandler from '../hooks/useBackButtonExitHandler';
 
@@ -39,6 +39,33 @@ const SavedRecordsScreen = () => {
     fetchPatients();
   };
 
+  const handleDelete = async (evaluationId) => {
+    Alert.alert(
+      "ยืนยันการลบข้อมูล",
+      "คุณต้องการลบข้อมูลการประเมินนี้ใช่หรือไม่? การดำเนินการนี้ไม่สามารถย้อนกลับได้",
+      [
+        {
+          text: "ยกเลิก",
+          style: "cancel"
+        },
+        {
+          text: "ลบ",
+          onPress: async () => {
+            try {
+              await deleteEvaluation(evaluationId);
+              Alert.alert("ลบสำเร็จ", "ข้อมูลการประเมินถูกลบเรียบร้อยแล้ว");
+              fetchPatients(); // Refresh the list after deletion
+            } catch (error) {
+              console.error("Failed to delete evaluation:", error);
+              Alert.alert("ลบไม่สำเร็จ", "ไม่สามารถลบข้อมูลการประเมินได้ กรุณาลองใหม่อีกครั้ง");
+            }
+          },
+          style: "destructive"
+        }
+      ]
+    );
+  };
+
   const renderItem = ({ item, index }) => (
     <Animatable.View animation="fadeInUp" duration={500} delay={index * 100}>
       <TouchableOpacity 
@@ -48,11 +75,22 @@ const SavedRecordsScreen = () => {
         <View style={styles.patientInfo}>
             <Text style={styles.patientName}>{`${item.firstName} ${item.lastName}`}</Text>
             <Text style={styles.patientHn}>HN: {item.hn}</Text>
+            {item.evaluations[0]?.createdAt && (
+              <Text style={styles.recordDate}>
+                บันทึกเมื่อ: {new Date(item.evaluations[0].createdAt).toLocaleString()}
+              </Text>
+            )}
         </View>
         <View style={styles.scoreContainer}>
             <Text style={styles.scoreLabel}>REH Score</Text>
             <Text style={styles.scoreValue}>{item.evaluations[0]?.totalRehScore ?? 'N/A'}</Text>
         </View>
+        <TouchableOpacity 
+          style={styles.deleteButton}
+          onPress={() => handleDelete(item.evaluations[0].id)}
+        >
+          <Text style={styles.deleteButtonText}>ลบ</Text>
+        </TouchableOpacity>
       </TouchableOpacity>
     </Animatable.View>
   );
@@ -119,6 +157,19 @@ const styles = StyleSheet.create({
   scoreLabel: { fontFamily: 'IBMPlexSans-Medium', fontSize: 12, color: '#388E3C' },
   scoreValue: { fontFamily: 'IBMPlexSans-Bold', fontSize: 22, color: '#388E3C' },
   emptyText: { fontFamily: 'IBMPlexSansThai-Regular', fontSize: 16, color: '#7F8C8D' },
+  recordDate: { fontFamily: 'IBMPlexSansThai-Regular', fontSize: 12, color: '#7F8C8D', marginTop: 4 },
+  deleteButton: {
+    backgroundColor: '#FF6B6B',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 8,
+    marginLeft: 10,
+  },
+  deleteButtonText: {
+    color: '#FFFFFF',
+    fontFamily: 'IBMPlexSansThai-Bold',
+    fontSize: 14,
+  },
 });
 
 export default SavedRecordsScreen;
