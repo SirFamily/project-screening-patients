@@ -20,17 +20,20 @@
     "react-native-animatable": "^1.4.0",
     "react-native-dotenv": "^3.4.11",
     "react-native-safe-area-context": "5.4.0",
-    "react-native-screens": "~4.11.1"
+    "react-native-screens": "~4.11.1",
+    "react-dom": "19.0.0",
+    "react-native-web": "^0.20.0",
+    "@expo/metro-runtime": "~5.0.4"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
   },
   "expo": {
-  "doctor": {
-    "reactNativeDirectoryCheck": {
-      "listUnknownPackages": false
+    "doctor": {
+      "reactNativeDirectoryCheck": {
+        "listUnknownPackages": false
+      }
     }
-  }
-},
+  },
   "private": true
 }
