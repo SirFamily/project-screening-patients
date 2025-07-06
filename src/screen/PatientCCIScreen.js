@@ -52,10 +52,26 @@ const PatientCCIScreen = () => {
 
   const { cciScore, cciRehScore } = useMemo(() => {
     let score = 0;
-    if (Object.keys(cciSections.score1.items).some(k => comorbidities[k])) score += 1;
-    if (Object.keys(cciSections.score2.items).some(k => comorbidities[k])) score += 2;
-    if (Object.keys(cciSections.score3.items).some(k => comorbidities[k])) score += 3;
-    if (Object.keys(cciSections.score6.items).some(k => comorbidities[k])) score += 6;
+    for (const key in cciSections.score1.items) {
+      if (comorbidities[key]) {
+        score += 1;
+      }
+    }
+    for (const key in cciSections.score2.items) {
+      if (comorbidities[key]) {
+        score += 2;
+      }
+    }
+    for (const key in cciSections.score3.items) {
+      if (comorbidities[key]) {
+        score += 3;
+      }
+    }
+    for (const key in cciSections.score6.items) {
+      if (comorbidities[key]) {
+        score += 6;
+      }
+    }
     
     let rehScore = 0;
     if (score <= 2) rehScore = 2;
