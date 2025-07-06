@@ -64,7 +64,10 @@ const genders = [
           style={{ flex: 1 }}
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
-          <ScrollView contentContainerStyle={styles.container}>
+          <View style={styles.headerContainer}>
+            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                <Text style={styles.backButtonText}>←</Text>
+            </TouchableOpacity>
             <Animatable.View animation="fadeInDown" duration={1000} style={styles.header}>
               <View style={styles.headerIconContainer}>
                   <Text style={styles.headerIcon}>📋</Text>
@@ -72,6 +75,9 @@ const genders = [
               <Text style={styles.title}>ข้อมูลผู้ป่วย</Text>
               <Text style={styles.subtitle}>Patient Information</Text>
             </Animatable.View>
+            <View style={{ width: 40 }} />
+          </View>
+          <ScrollView contentContainerStyle={styles.container}>
   
             <Animatable.View animation="fadeInUp" duration={900} delay={200}>
               <View style={styles.card}>
@@ -173,6 +179,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 20,
     marginBottom: 24,
+  },
+  headerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  backButton: {
+    padding: 10,
+  },
+  backButtonText: {
+    fontSize: 24,
+    color: '#0B6258',
+    fontWeight: 'bold',
   },
   headerIconContainer: {
     width: 80, height: 80, borderRadius: 40,

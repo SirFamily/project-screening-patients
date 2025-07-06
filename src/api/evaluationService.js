@@ -21,3 +21,17 @@ export const saveEvaluation = async (patientData) => {
     throw error; // Re-throw the error to be caught by the caller
   }
 };
+
+export const getSavedPatients = async () => {
+  try {
+    const response = await fetch(`${API_URL}/patients`);
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to fetch patients');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('API Error:', error);
+    throw error;
+  }
+};
