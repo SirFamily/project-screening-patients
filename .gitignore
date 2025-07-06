@@ -10,7 +10,7 @@ dist/
 private/
 web-build/
 expo-env.d.ts
-
+backend/
 # Native
 .kotlin/
 *.orig.*
@@ -37,3 +37,4 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+.env 
