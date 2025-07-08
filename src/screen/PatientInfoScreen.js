@@ -66,7 +66,7 @@ const genders = [
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
           <View style={styles.headerContainer}>
-            <TouchableOpacity onPress={() => navigation.navigate('Home')} style={styles.backButton}>
+            <TouchableOpacity onPress={() => navigation.navigate('IcuScoring')} style={styles.backButton}>
                 <Text style={styles.backButtonText}>←</Text>
             </TouchableOpacity>
             <Animatable.View animation="fadeInDown" duration={1000} style={styles.header}>

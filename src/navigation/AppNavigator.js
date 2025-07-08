@@ -18,12 +18,12 @@ const Stack = createNativeStackNavigator();
 export default function AppNavigator() {
     return (
         <Stack.Navigator
-            initialRouteName="Home"
+            initialRouteName="IcuScoring"
             screenOptions={{
                 headerShown: false,
             }}
         >
-            <Stack.Screen name="Home" component={HomeScreen} />
+            <Stack.Screen name="IcuScoring" component={HomeScreen} />
             <Stack.Screen name="PatientInfo" component={PatientInfoScreen} />
             <Stack.Screen name="AssessmentSelection" component={AssessmentSelectionScreen} />
             <Stack.Screen name="PatientSOFA" component={PatientSOFAScreen} />
