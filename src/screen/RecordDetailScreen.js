@@ -57,10 +57,14 @@ const RecordDetailScreen = () => {
 
   const guidelines = useMemo(() => {
     if (results.totalRehScore >= 7) {
-      return info.ward === 'ICU' ? nursingGuidelines['7_with_icu'] : nursingGuidelines['7_no_icu'];
+      // Display both sets of guidelines for score >= 7
+      return [
+        { title: 'แนวปฏิบัติการดูแลผู้ป่วยหากไม่มี ICU', items: nursingGuidelines['7_no_icu'] },
+        { title: 'แนวปฏิบัติการดูแลผู้ป่วยวิกฤตที่ได้เข้า ICU', items: nursingGuidelines['7_with_icu'] }
+      ];
     }
-    if (results.totalRehScore >= 5) return nursingGuidelines['5-6'].general;
-    return nursingGuidelines['1-4'].general;
+    if (results.totalRehScore >= 5) return [{ title: '', items: nursingGuidelines['5-6'].general }];
+    return [{ title: '', items: nursingGuidelines['1-4'].general }];
   }, [results.totalRehScore, info.ward]);
 
   const icuCaseNote = useMemo(() => {
@@ -123,8 +127,13 @@ const RecordDetailScreen = () => {
 
         <Animatable.View animation="fadeInUp" duration={500} delay={400} style={styles.card}>
             <Text style={styles.cardTitle}>แนวทางการดูแล</Text>
-            {guidelines.map((item, index) => (
-              <Text key={index} style={styles.guidelineItem}>• {item}</Text>
+            {guidelines.map((section, sectionIndex) => (
+              <View key={sectionIndex} style={styles.guidelineSection}>
+                <Text style={styles.guidelineSectionTitle}>{section.title}</Text>
+                {section.items.map((item, itemIndex) => (
+                  <Text key={itemIndex} style={styles.guidelineItem}>• {item}</Text>
+                ))}
+              </View>
             ))}
             {icuCaseNote && <Text style={styles.icuCaseNote}>{icuCaseNote}</Text>}
         </Animatable.View>
@@ -165,6 +174,10 @@ const styles = StyleSheet.create({
   breakdownRaw: { fontFamily: 'IBMPlexSans-Regular', fontSize: 15, color: '#7F8C8D' },
   breakdownArrow: { fontFamily: 'IBMPlexSans-Bold', fontSize: 16, color: '#0B6258', marginHorizontal: 8 },
   breakdownReh: { fontFamily: 'IBMPlexSans-Bold', fontSize: 16, color: '#0B6258', minWidth: 80, textAlign: 'right' },
+  guidelineSection: { marginBottom: 15 },
+  guidelineSectionTitle: { fontFamily: 'IBMPlexSansThai-Bold', fontSize: 16, color: '#0B6258', marginBottom: 8 },
+  guidelineSection: { marginBottom: 15 },
+  guidelineSectionTitle: { fontFamily: 'IBMPlexSansThai-Bold', fontSize: 16, color: '#0B6258', marginBottom: 8 },
 });
 
 export default RecordDetailScreen;
