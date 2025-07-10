@@ -28,28 +28,7 @@
       "package": "com.fam45000.projectscreeningpatients"
     },
     "web": {
-      "favicon": "./assets/favicon.png",
-      "pwa": {
-        "name": "ICU Screening App",
-        "shortName": "ICUApp",
-        "themeColor": "#ffffff",
-        "backgroundColor": "#ffffff",
-        "display": "standalone",
-        "scope": "/",
-        "startUrl": "/",
-        "icons": [
-          {
-            "src": "./assets/icon.png",
-            "sizes": "192x192",
-            "type": "image/png"
-          },
-          {
-            "src": "./assets/splash-icon.png",
-            "sizes": "512x512",
-            "type": "image/png"
-          }
-        ]
-      }
+      "favicon": "./assets/favicon.png"
     },
     "extra": {
       "eas": {
