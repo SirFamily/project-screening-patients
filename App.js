@@ -20,29 +20,6 @@ const fetchFonts = () => {
 
 export default function App() {
   const [fontLoaded, setFontLoaded] = useState(false);
-  const [deferredPrompt, setDeferredPrompt] = useState(null);
-
-  useEffect(() => {
-    const handler = (e) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-    };
-
-    window.addEventListener('beforeinstallprompt', handler);
-
-    return () => {
-      window.removeEventListener('beforeinstallprompt', handler);
-    };
-  }, []);
-
-  const handleInstallClick = async () => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      console.log(`User response to the install prompt: ${outcome}`);
-      setDeferredPrompt(null);
-    }
-  };
 
   useEffect(() => {
     async function loadResources() {
@@ -69,23 +46,6 @@ export default function App() {
 
   return (
     <PatientProvider>
-      {Platform.OS === 'web' && deferredPrompt && (
-        <View style={styles.installButtonContainer}>
-          <Text style={styles.installText}>ติดตั้งแอปพลิเคชัน</Text>
-          <View style={{ flexDirection: 'row' }}>
-            <Button
-              title="ติดตั้ง"
-              onPress={handleInstallClick}
-              color="#fff"
-            />
-            <Button
-              title="ปฏิเสธ"
-              onPress={() => setDeferredPrompt(null)}
-              color="#fff"
-            />
-          </View>
-        </View>
-      )}
       <NavigationContainer>
         <AppNavigator />
       </NavigationContainer>
@@ -133,4 +93,5 @@ const styles = StyleSheet.create({
     fontFamily: 'IBMPlexSansThai-SemiBold',
     fontSize: 16,
   },
+  
 });
