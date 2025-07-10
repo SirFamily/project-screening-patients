@@ -1,6 +1,6 @@
 {
-  "short_name": "Screening",
-  "name": "Project Screening Patients",
+  "short_name": "ICU scoring",
+  "name": "ICU scoring App",
   "icons": [
     {
       "src": "./icon.png",
@@ -22,6 +22,6 @@
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#0B6258",
-  "description": "A PWA for screening patients.",
+  "description": "แอปพลิเคชันสำหรับคำนวณคะแนนทางการแพทย์ต่างๆ เพื่อการประเมินผู้ป่วย",
   "orientation": "portrait"
 }
