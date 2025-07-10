@@ -27,9 +27,6 @@
       "edgeToEdgeEnabled": true,
       "package": "com.fam45000.projectscreeningpatients"
     },
-    "plugins": [
-      "expo-pwa"
-    ],
     "web": {
       "favicon": "./assets/favicon.png",
       "pwa": {
