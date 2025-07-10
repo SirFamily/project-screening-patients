@@ -21,7 +21,7 @@
   "start_url": ".",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#1976d2",
+  "theme_color": "#0B6258",
   "description": "A PWA for screening patients.",
   "orientation": "portrait"
 }
