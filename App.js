@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import AppNavigator from './src/navigation/AppNavigator';
 import { PatientProvider } from './src/context/PatientContext';
-import { StatusBar, Text, View, ActivityIndicator, StyleSheet } from 'react-native';
+import { StatusBar, Text, View, ActivityIndicator, StyleSheet, Button, Platform } from 'react-native';
 import * as Font from 'expo-font';
 
 StatusBar.setHidden(true);
@@ -20,6 +20,29 @@ const fetchFonts = () => {
 
 export default function App() {
   const [fontLoaded, setFontLoaded] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+
+  useEffect(() => {
+    const handler = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    window.addEventListener('beforeinstallprompt', handler);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handler);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      console.log(`User response to the install prompt: ${outcome}`);
+      setDeferredPrompt(null);
+    }
+  };
 
   useEffect(() => {
     async function loadResources() {
@@ -46,6 +69,23 @@ export default function App() {
 
   return (
     <PatientProvider>
+      {Platform.OS === 'web' && deferredPrompt && (
+        <View style={styles.installButtonContainer}>
+          <Text style={styles.installText}>ติดตั้งแอปพลิเคชัน</Text>
+          <View style={{ flexDirection: 'row' }}>
+            <Button
+              title="ติดตั้ง"
+              onPress={handleInstallClick}
+              color="#fff"
+            />
+            <Button
+              title="ปฏิเสธ"
+              onPress={() => setDeferredPrompt(null)}
+              color="#fff"
+            />
+          </View>
+        </View>
+      )}
       <NavigationContainer>
         <AppNavigator />
       </NavigationContainer>
@@ -58,7 +98,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff', // หรือสีพื้นหลังที่ต้องการ
+    backgroundColor: '#fff',
   },
   loadingText: {
     marginTop: 16,
@@ -66,5 +106,31 @@ const styles = StyleSheet.create({
     color: '#333',
     fontWeight: 'bold',
     letterSpacing: 1,
+  },
+  installButtonContainer: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+    zIndex: 1000,
+    backgroundColor: '#0B6258',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  installText: {
+    color: 'white',
+    marginRight: 10,
+    fontFamily: 'IBMPlexSansThai-SemiBold',
+    fontSize: 16,
   },
 });
