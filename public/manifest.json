@@ -3,17 +3,17 @@
   "name": "ICU scoring App",
   "icons": [
     {
-      "src": "./icon.png",
+      "src": "./PWA_IC_512x512.png",
       "type": "image/png",
       "sizes": "512x512"
     },
     {
-      "src": "./favicon.png",
+      "src": "./PWA_IC_192x192.png",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "./adaptive-icon.png",
+      "src": "./PWA_IC_1024x1024.png",
       "type": "image/png",
       "sizes": "1024x1024"
     }
