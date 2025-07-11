@@ -5,32 +5,40 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { getSavedPatients, deleteEvaluation } from '../api/evaluationService';
 import * as Animatable from 'react-native-animatable';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
-// import useBackButtonExitHandler from '../hooks/useBackButtonExitHandler';
+
+const ITEMS_PER_PAGE = 5;
 
 const SavedRecordsScreen = () => {
   const navigation = useNavigation();
-  // useBackButtonExitHandler();
-  const [patients, setPatients] = useState([]);
+  const [allPatients, setAllPatients] = useState([]);
+  const [displayedPatients, setDisplayedPatients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const [evaluationToDelete, setEvaluationToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
 
   const fetchPatients = async () => {
     try {
       const data = await getSavedPatients();
-      setPatients(data);
+      setAllPatients(data);
+      setTotalPages(Math.ceil(data.length / ITEMS_PER_PAGE));
     } catch (error) {
       console.error(error);
-      // Optionally, show an alert to the user
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
   };
 
-  // Fetch data when the screen comes into focus
+  useEffect(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    setDisplayedPatients(allPatients.slice(startIndex, endIndex));
+  }, [allPatients, currentPage]);
+
   useFocusEffect(
     useCallback(() => {
       setLoading(true);
@@ -40,6 +48,7 @@ const SavedRecordsScreen = () => {
 
   const onRefresh = () => {
     setRefreshing(true);
+    setCurrentPage(1);
     fetchPatients();
   };
 
@@ -53,11 +62,9 @@ const SavedRecordsScreen = () => {
       setIsDeleting(true);
       try {
         await deleteEvaluation(evaluationToDelete);
-        // Alert.alert("ลบสำเร็จ", "ข้อมูลการประเมินถูกลบเรียบร้อยแล้ว");
-        fetchPatients(); // Refresh the list after deletion
+        fetchPatients();
       } catch (error) {
         console.error("Failed to delete evaluation:", error);
-        // Alert.alert("ลบไม่สำเร็จ", "ไม่สามารถลบข้อมูลการประเมินได้ กรุณาลองใหม่อีกครั้ง");
       } finally {
         setIsDeleting(false);
         setIsDeleteModalVisible(false);
@@ -69,6 +76,12 @@ const SavedRecordsScreen = () => {
   const cancelDelete = () => {
     setIsDeleteModalVisible(false);
     setEvaluationToDelete(null);
+  };
+
+  const handlePageChange = (newPage) => {
+    if (newPage > 0 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
   };
 
   const renderItem = ({ item, index }) => (
@@ -100,6 +113,26 @@ const SavedRecordsScreen = () => {
     </Animatable.View>
   );
 
+  const renderPagination = () => (
+    <View style={styles.paginationContainer}>
+      <TouchableOpacity 
+        style={[styles.paginationButton, currentPage === 1 && styles.disabledButton]}
+        onPress={() => handlePageChange(currentPage - 1)} 
+        disabled={currentPage === 1}
+      >
+        <Text style={styles.paginationButtonText}>ก่อนหน้า</Text>
+      </TouchableOpacity>
+      <Text style={styles.paginationText}>{`หน้า ${currentPage} จาก ${totalPages}`}</Text>
+      <TouchableOpacity 
+        style={[styles.paginationButton, currentPage === totalPages && styles.disabledButton]}
+        onPress={() => handlePageChange(currentPage + 1)} 
+        disabled={currentPage === totalPages}
+      >
+        <Text style={styles.paginationButtonText}>ถัดไป</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
   if (loading) {
     return (
       <SafeAreaView style={styles.centeredContainer}>
@@ -118,7 +151,7 @@ const SavedRecordsScreen = () => {
         <View style={{ width: 40 }} />
       </View>
       <FlatList
-        data={patients}
+        data={displayedPatients}
         renderItem={renderItem}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={styles.listContainer}
@@ -130,6 +163,7 @@ const SavedRecordsScreen = () => {
         refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#0B6258']} />
         }
+        ListFooterComponent={totalPages > 1 ? renderPagination : null}
       />
       <DeleteConfirmationModal
         visible={isDeleteModalVisible}
@@ -179,6 +213,31 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontFamily: 'IBMPlexSansThai-Bold',
     fontSize: 14,
+  },
+  paginationContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    paddingVertical: 10,
+  },
+  paginationButton: {
+    backgroundColor: '#0B6258',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+  },
+  paginationButtonText: {
+    color: 'white',
+    fontFamily: 'IBMPlexSansThai-Bold',
+    fontSize: 14,
+  },
+  paginationText: {
+    fontFamily: 'IBMPlexSansThai-Regular',
+    fontSize: 16,
+    color: '#2C3E50',
+  },
+  disabledButton: {
+    backgroundColor: '#BDBDBD',
   },
 });
 
