@@ -4,6 +4,7 @@ import AppNavigator from './src/navigation/AppNavigator';
 import { PatientProvider } from './src/context/PatientContext';
 import { StatusBar, Text, View, ActivityIndicator, StyleSheet, Button, Platform } from 'react-native';
 import * as Font from 'expo-font';
+import PwaInstallPrompt from './src/components/PwaInstallPrompt';
 
 StatusBar.setHidden(true);
 
@@ -49,6 +50,7 @@ export default function App() {
       <NavigationContainer>
         <AppNavigator />
       </NavigationContainer>
+      <PwaInstallPrompt />
     </PatientProvider>
   );
 }
